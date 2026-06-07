@@ -7,8 +7,8 @@ import RateHistoryChart from '@/components/charts/RateHistoryChart'
 import ImportShareChart from '@/components/charts/ImportShareChart'
 import WorldMap from '@/components/WorldMap'
 import DutyCalculator from '@/components/DutyCalculator'
-import TradeAgreements from '@/components/TradeAgreements'
-import RelatedCodes from '@/components/RelatedCodes'
+import { TradeAgreements } from '@/components/shared'
+import { RelatedCodes } from '@/components/shared'
 import type { HSCode } from '@/lib/supabase'
 
 type Props = { params: { code: string } }
