@@ -6,7 +6,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'img.youtube.com' },
     ],
   },
-  async generateStaticParams() {},
 }
 
 module.exports = nextConfig
