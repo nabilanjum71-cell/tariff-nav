@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import DutyCalculator from '@/components/DutyCalculator'
-import RecentChanges from '@/components/RecentChanges'
+import { RecentChanges } from '@/components/shared'
 
 const HS_CHAPTERS = [
   { num: '01', title: 'Live Animals', icon: '🐄' },
