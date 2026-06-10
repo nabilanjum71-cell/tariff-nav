@@ -5,6 +5,7 @@ import AlertsModal from '@/components/AlertsModal'
 
 export default function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
+const [alertsOpen, setAlertsOpen] = useState(false)
 
   return (
     <nav style={{ borderBottom: '1px solid var(--border)', background: 'rgba(10,15,30,0.95)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100 }}>
