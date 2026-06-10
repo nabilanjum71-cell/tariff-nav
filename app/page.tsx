@@ -81,12 +81,12 @@ export default function HomePage() {
     e.preventDefault()
     if (!query.trim()) return
     const cleaned = query.trim().replace(/\./g, '-').replace(/\s+/g, '-')
-    window.location.href = `/hs-code/${cleaned}`
+    window.location.href =  `/hs-code/${cleaned}-01-00`
   }
 
   function goToCode(htsCode: string) {
     const slug = htsCode.replace(/\./g, '-')
-    window.location.href = `/hs-code/${slug}`
+    window.location.href =  `/hs-code/${slug}-01-00`
   }
 
   return (
