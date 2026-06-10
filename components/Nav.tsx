@@ -19,7 +19,7 @@ export default function Nav() {
         </Link>
 
         <div style={{ display: 'flex', gap: '1.5rem', marginLeft: 'auto', alignItems: 'center' }}>
-          <Link href="/chapter/84" className="nav-link">Chapters</Link>
+          <Link href="/chapters" className="nav-link">Chapters</Link>
           <Link href="/compare/8471-30-01-vs-8517-12-00" className="nav-link">Compare</Link>
           <Link href="/hs-code/8471-30-01" className="nav-link">Calculator</Link>
           <Link href="/"
