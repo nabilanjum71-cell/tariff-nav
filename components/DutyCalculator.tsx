@@ -49,8 +49,12 @@ export default function DutyCalculator({ hsCode: initialHsCode }: Props) {
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
             Selected: <strong style={{ color: 'var(--accent)' }}>{(hsCode as any).hts_code}</strong>
           </div>
-        )}
+     )}
       </div>
+
+      {/* Country and Currency Selectors */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+        <div>
           <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Importing From</label>
           <select value={country} onChange={e => setCountry(e.target.value)} style={{ width: '100%' }}>
             {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
