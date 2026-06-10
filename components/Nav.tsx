@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
+import AlertsModal from '@/components/AlertsModal'
 
 export default function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -20,15 +21,17 @@ export default function Nav() {
 
         <div style={{ display: 'flex', gap: '1.5rem', marginLeft: 'auto', alignItems: 'center' }}>
           <Link href="/chapters" className="nav-link">Chapters</Link>
-          <Link href="/compare/8471-30-01-vs-8517-12-00" className="nav-link">Compare</Link>
+          <Link href="/compare" className="nav-link">Compare</Link>
           <Link href="/hs-code/8471-30-01" className="nav-link">Calculator</Link>
-          <Link href="/"
-            style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--border-glow)', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 500, textDecoration: 'none', transition: 'all 0.2s' }}
+       <button
+            onClick={() => setAlertsOpen(true)}
+            style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--border-glow)', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(34,197,94,0.2)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
           >
             Get Alerts
-          </Link>
+          </button>
+          {alertsOpen && <AlertsModal onClose={() => setAlertsOpen(false)} />}
         </div>
       </div>
     </nav>

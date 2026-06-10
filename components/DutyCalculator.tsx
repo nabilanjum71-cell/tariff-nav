@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import HsSearch from '@/components/HsSearch'
 import type { HSCode } from '@/lib/supabase'
 
 const COUNTRIES = [
@@ -17,7 +18,8 @@ const COUNTRIES = [
 
 type Props = { hsCode?: HSCode }
 
-export default function DutyCalculator({ hsCode }: Props) {
+export default function DutyCalculator({ hsCode: initialHsCode }: Props) {
+  const [hsCode, setHsCode] = useState<HSCode | undefined>(initialHsCode)
   const [value, setValue] = useState('')
   const [country, setCountry] = useState('US')
   const [currency, setCurrency] = useState('USD')
@@ -35,18 +37,20 @@ export default function DutyCalculator({ hsCode }: Props) {
 
   return (
     <div className="card" style={{ background: 'linear-gradient(135deg, var(--bg-card), var(--bg-elevated))' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '1.25rem' }}>
-        <div>
-          <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Shipment Value</label>
-          <input
-            type="number"
-            value={value}
-            onChange={e => setValue(e.target.value)}
-            placeholder="e.g. 10000"
-            style={{ width: '100%' }}
-          />
-        </div>
-        <div>
+     {/* HS Code Search */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>HS Code</label>
+        <HsSearch
+          placeholder="Type code or product name…"
+          autoNavigate={false}
+          onSelect={code => setHsCode({ ...code, us_duty_rate: parseFloat(code.us_duty_rate) || 0 } as any)}
+        />
+        {hsCode && (
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+            Selected: <strong style={{ color: 'var(--accent)' }}>{(hsCode as any).hts_code}</strong>
+          </div>
+        )}
+      </div>
           <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Importing From</label>
           <select value={country} onChange={e => setCountry(e.target.value)} style={{ width: '100%' }}>
             {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}

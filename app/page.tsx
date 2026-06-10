@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import HsSearch from '@/components/HsSearch'
 import DutyCalculator from '@/components/DutyCalculator'
 import { RecentChanges } from '@/components/shared'
 
@@ -25,14 +26,13 @@ const HS_CHAPTERS = [
 ]
 
 const POPULAR_SEARCHES = [
-  { code: '8471.30', label: 'Laptops' },
-  { code: '8517.12', label: 'Smartphones' },
-  { code: '6109.10', label: 'T-Shirts' },
-  { code: '0901.11', label: 'Coffee' },
-  { code: '8708.29', label: 'Auto Parts' },
-  { code: '2709.00', label: 'Crude Oil' },
+  { code: '8471.30.01', label: 'Laptops' },
+  { code: '8517.12.00', label: 'Smartphones' },
+  { code: '6109.10.00', label: 'T-Shirts' },
+  { code: '0901.11.00', label: 'Coffee' },
+  { code: '8708.29.10', label: 'Auto Parts' },
+  { code: '2709.00.10', label: 'Crude Oil' },
 ]
-
 export default function HomePage() {
   const [query, setQuery] = useState('')
   const [stats, setStats] = useState({ total_codes: 0, countries: 164, chapters: 97 })
@@ -69,23 +69,14 @@ export default function HomePage() {
         </p>
 
         {/* Search */}
-        <form onSubmit={handleSearch} className="animate-fade-up delay-300" style={{ display: 'flex', gap: '8px', maxWidth: '520px', margin: '0 auto 1rem' }}>
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Enter HS code (e.g. 8471.30) or product name..."
-            style={{ flex: 1, fontSize: '1rem', padding: '0.75rem 1rem' }}
-          />
-          <button type="submit" className="btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-            Search
-          </button>
-        </form>
+      <div className="animate-fade-up delay-300" style={{ maxWidth: '520px', margin: '0 auto 1rem' }}>
+  <HsSearch />
+</div>
 
         {/* Popular searches */}
         <div className="animate-fade-up delay-400" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
           {POPULAR_SEARCHES.map(s => (
-            <Link key={s.code} href={`/hs-code/${s.code.replace('.', '-')}`}
+            <Link key={s.code} href={`/hs-code/${s.code.replace(/\./g, '-')}`}
               style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '100px', padding: '4px 12px', fontSize: '0.8rem', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'all 0.2s' }}
               onMouseEnter={e => { (e.target as HTMLElement).style.color = 'var(--text-primary)'; (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,0.2)' }}
               onMouseLeave={e => { (e.target as HTMLElement).style.color = 'var(--text-secondary)'; (e.target as HTMLElement).style.borderColor = 'var(--border)' }}
