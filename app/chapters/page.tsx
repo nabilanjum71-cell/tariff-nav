@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 
 const ALL_CHAPTERS = [
@@ -67,8 +68,8 @@ const ALL_CHAPTERS = [
   { num: '64', title: 'Footwear', icon: '👟' },
   { num: '65', title: 'Headgear', icon: '🎩' },
   { num: '66', title: 'Umbrellas & Sticks', icon: '☂️' },
-  { num: '67', title: 'Feathers & Artificial Flowers', icon: '🌺' },
-  { num: '68', title: 'Stone & Cement Articles', icon: '🪨' },
+  { num: '67', title: 'Feathers & Flowers', icon: '🌺' },
+  { num: '68', title: 'Stone & Cement', icon: '🪨' },
   { num: '69', title: 'Ceramic Products', icon: '🏺' },
   { num: '70', title: 'Glass & Glassware', icon: '🪟' },
   { num: '71', title: 'Precious Stones & Metals', icon: '💎' },
@@ -82,7 +83,7 @@ const ALL_CHAPTERS = [
   { num: '80', title: 'Tin', icon: '🥫' },
   { num: '81', title: 'Other Base Metals', icon: '⚙️' },
   { num: '82', title: 'Tools & Cutlery', icon: '🔨' },
-  { num: '83', title: 'Miscellaneous Metal Articles', icon: '🪛' },
+  { num: '83', title: 'Miscellaneous Metal', icon: '🪛' },
   { num: '84', title: 'Machinery', icon: '⚙️' },
   { num: '85', title: 'Electrical Equipment', icon: '💡' },
   { num: '86', title: 'Railway Equipment', icon: '🚂' },
@@ -110,15 +111,14 @@ export default function ChaptersPage() {
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
         {ALL_CHAPTERS.map(ch => (
-          <a key={ch.num} href={`/chapter/${ch.num}`}
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.25rem', textDecoration: 'none', display: 'block', transition: 'border-color 0.2s, transform 0.2s', cursor: 'pointer' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-glow)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.transform = 'none' }}
+          <Link key={ch.num} href={`/chapter/${ch.num}`}
+            className="card"
+            style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}
           >
             <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>{ch.icon}</div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>CH. {ch.num}</div>
             <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.3 }}>{ch.title}</div>
-          </a>
+          </Link>
         ))}
       </div>
     </div>
