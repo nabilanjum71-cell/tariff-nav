@@ -30,8 +30,8 @@ const POPULAR_SEARCHES = [
   { code: '8517.12.00', label: 'Smartphones' },
   { code: '6109.10.00', label: 'T-Shirts' },
   { code: '0901.11.00', label: 'Coffee' },
-  { code: '8708.29.10', label: 'Auto Parts' },
-  { code: '2709.00.10', label: 'Crude Oil' },
+  { code: '8708.29.50', label: 'Auto Parts' },
+  { code: '2709.00.00', label: 'Crude Oil' },
 ]
 export default function HomePage() {
   const [query, setQuery] = useState('')

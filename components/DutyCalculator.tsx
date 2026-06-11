@@ -51,7 +51,17 @@ export default function DutyCalculator({ hsCode: initialHsCode }: Props) {
           </div>
      )}
       </div>
-
+{/* Shipment Value */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Shipment Value (USD)</label>
+        <input
+          type="number"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          placeholder="e.g. 10000"
+          style={{ width: '100%', padding: '0.75rem 1rem', fontSize: '0.95rem', boxSizing: 'border-box' }}
+        />
+      </div>
       {/* Country and Currency Selectors */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
         <div>
