@@ -43,7 +43,7 @@ export default function DutyCalculator({ hsCode: initialHsCode }: Props) {
         <HsSearch
           placeholder="Type code or product name…"
           autoNavigate={false}
-          onSelect={code => setHsCode({ ...code, us_duty_rate: parseFloat(code.us_duty_rate) || 0 } as any)}
+          onSelect={code => setHsCode({ ...code, us_duty_rate: Number(code.us_duty_rate) || 0 } as any)}
         />
         {hsCode && (
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
