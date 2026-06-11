@@ -11,7 +11,7 @@ export default function AlertsModal({ onClose }: { onClose: () => void }) {
     if (!email) return
     setStatus('loading')
     const codeList = codes.split(',').map(c => c.trim()).filter(Boolean)
-    const { error } = await supabase.from('subscribers').insert({ email, hs_codes: codeList })
+    const { error } = await supabase.from('subscribers').insert({ email, alert_codes: codeList })
     setStatus(error ? 'error' : 'success')
   }
 
