@@ -68,12 +68,7 @@ export default function HomePage() {
           Duty rates, trade agreements, country comparisons, and import data for 500,000+ HS codes. Free, always up-to-date.
         </p>
 
-        {/* Search */}
-      <div className="animate-fade-up delay-300" style={{ maxWidth: '520px', margin: '0 auto 1rem' }}>
-  <HsSearch />
-</div>
-
-        {/* Popular searches */}
+   {/* Popular searches */}
         <div className="animate-fade-up delay-400" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
           {POPULAR_SEARCHES.map(s => (
             <Link key={s.code} href={`/hs-code/${s.code.replace(/\./g, '-')}`}
@@ -85,6 +80,12 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+        {/* Search */}
+      <div className="animate-fade-up delay-300" style={{ maxWidth: '520px', margin: '0 auto 1rem' }}>
+  <HsSearch />
+</div>
+
+     
       </section>
 
       {/* ── Stats bar ── */}
