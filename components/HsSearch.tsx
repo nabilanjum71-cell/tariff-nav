@@ -80,7 +80,7 @@ export default function HsSearch({ placeholder = 'Search HS code or product…',
                   <span style={{ fontWeight: 700, color: 'var(--accent)', marginRight: 8 }}>{item.hts_code}</span>
                   <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{item.description?.slice(0, 55)}{(item.description?.length ?? 0) > 55 ? '…' : ''}</span>
                 </div>
-                {item.us_duty_rate && (
+                {item.us_duty_rate != null && item.us_duty_rate !== 0 && item.us_duty_rate !== '0' && (
                   <span style={{ background: 'var(--accent-dim)', color: 'var(--accent)', padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>
                     {item.us_duty_rate}
                   </span>
