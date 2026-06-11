@@ -23,7 +23,7 @@ const [alertsOpen, setAlertsOpen] = useState(false)
         <div style={{ display: 'flex', gap: '1.5rem', marginLeft: 'auto', alignItems: 'center' }}>
           <Link href="/chapters" className="nav-link">Chapters</Link>
           <Link href="/compare" className="nav-link">Compare</Link>
-          <Link href="/hs-code/8471-30-01" className="nav-link">Calculator</Link>
+          <Link href="/calculator" className="nav-link">Calculator</Link>
        <button
             onClick={() => setAlertsOpen(true)}
             style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--border-glow)', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}

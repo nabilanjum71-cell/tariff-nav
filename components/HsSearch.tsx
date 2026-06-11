@@ -39,7 +39,7 @@ export default function HsSearch({ placeholder = 'Search HS code or product…',
       const { data } = await supabase
         .from('hs_codes')
         .select('hts_code, description, us_duty_rate')
-        .or(`hts_code.ilike.%${query}%,description.ilike.%${query}%`)
+        .or(`hts_code.ilike.%${query}%,description.ilike.%${query.toLowerCase()}%`)
         .limit(8)
       setResults(data || [])
       setOpen(true)
