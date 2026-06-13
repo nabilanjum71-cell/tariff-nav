@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { DutyBarChart } from '@/components/charts/DutyBarChart'
-
+import YouTubeSection from '@/components/YouTubeSection'
 type Props = { params: { chapter: string } }
 
 const CHAPTER_META: Record<string, { title: string; icon: string; description: string }> = {
@@ -197,6 +197,8 @@ export default async function ChapterPage({ params }: Props) {
           <DutyBarChart data={avgByCode} />
         </div>
       </section>
+	{/* YouTube */}
+      <YouTubeSection chapterTitle={meta.title} chapterNum={chapterNum} />
 
       {/* Codes table */}
       <section style={{ marginBottom: '2.5rem' }}>
