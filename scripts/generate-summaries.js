@@ -8,8 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH_SIZE = 50
-const DELAY_MS = 1200
+const BATCH_SIZE = 200
+const DELAY_MS = 800
 
 async function generateSummary(code) {
   const prompt = `You are writing content for a tariff information website. 
