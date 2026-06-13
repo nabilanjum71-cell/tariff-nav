@@ -22,6 +22,7 @@ const [alertsOpen, setAlertsOpen] = useState(false)
 
         <div style={{ display: 'flex', gap: '1.5rem', marginLeft: 'auto', alignItems: 'center' }}>
           <Link href="/chapters" className="nav-link">Chapters</Link>
+	<Link href="/blog" className="nav-link">Blog</Link>
           <Link href="/compare" className="nav-link">Compare</Link>
           <Link href="/calculator" className="nav-link">Calculator</Link>
        <button
