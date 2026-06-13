@@ -106,9 +106,33 @@ export default function ChaptersPage() {
       <h1 className="font-display" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', marginBottom: '0.5rem' }}>
         All HS Chapters
       </h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', maxWidth: '700px', lineHeight: 1.7 }}>
         Browse all 97 harmonized system chapters — click any chapter to see all codes and duty rates.
       </p>
+
+      {/* SEO Content */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem', maxWidth: '900px' }}>
+        <div>
+          <h2 className="font-display" style={{ fontSize: '1.2rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>What are HS Chapters?</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.8 }}>
+            The Harmonized System divides all traded goods into <strong style={{ color: 'var(--text-primary)' }}>97 chapters</strong>, each covering a broad product category. Every HS code begins with a 2-digit chapter number — Chapter 84 covers machinery, Chapter 61 covers knitted clothing, and Chapter 27 covers petroleum products.
+          </p>
+        </div>
+        <div>
+          <h2 className="font-display" style={{ fontSize: '1.2rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>How to Find Your Chapter</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.8 }}>
+            Click any chapter below to see every HTS code it contains, along with current US duty rates. Not sure which chapter applies? Use the <a href="/" style={{ color: 'var(--accent)', textDecoration: 'none' }}>search on the homepage</a> — type your product name and TariffNav will find the right chapter and code automatically.
+          </p>
+        </div>
+      </div>
+
+      {/* High duty chapters callout */}
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.25rem 1.5rem', marginBottom: '2rem', maxWidth: '900px' }}>
+        <div style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Highest Tariff Chapters</div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.7, margin: 0 }}>
+          <strong style={{ color: 'var(--text-primary)' }}>Chapter 64 (Footwear)</strong> carries some of the highest US duty rates — up to 37.5% on certain shoes. <strong style={{ color: 'var(--text-primary)' }}>Chapter 61 & 62 (Clothing)</strong> average 12–32% duties. <strong style={{ color: 'var(--text-primary)' }}>Chapter 84 & 85 (Machinery & Electronics)</strong> are mostly duty-free under WTO agreements. <strong style={{ color: 'var(--text-primary)' }}>Chapter 87 (Vehicles)</strong> carries a 2.5% car tariff and 25% truck tariff.
+        </p>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
         {ALL_CHAPTERS.map(ch => (
           <Link key={ch.num} href={`/chapter/${ch.num}`}
