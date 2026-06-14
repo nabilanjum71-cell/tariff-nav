@@ -30,7 +30,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: node scripts/generate-summaries.js
-	name: Wait before blog generation
+      - name: Wait before blog
         run: sleep 30
       - name: Generate blog post
         env:
@@ -40,5 +40,5 @@ jobs:
         run: node scripts/generate-blog.js
       - name: Trigger Vercel rebuild
         env:
-          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
-        run: curl -X POST "$VERCEL_DEPLOY_HOOK"
+          VERCEL_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: curl -X POST "$VERCEL_HOOK"
