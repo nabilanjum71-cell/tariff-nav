@@ -5,7 +5,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const groq = new Groq({ apiKey: process.env.GROQ_KEY_3 || process.env.GROQ_API_KEY })
 
 const TOPICS = [
   { title: 'HS Code for Laptops — Complete Import Guide 2025', slug: 'hs-code-laptops-import-guide', keywords: 'HS code laptops, laptop import duty, HTS 8471.30' },
@@ -100,7 +100,45 @@ const TOPICS = [
   { title: 'Import Licenses — When Do You Need One', slug: 'import-licenses-when-needed', keywords: 'import license USA, when need import permit, restricted imports' },
   { title: 'Intellectual Property & Customs — Protecting Your Brand', slug: 'intellectual-property-customs-brand-protection', keywords: 'CBP IPR, intellectual property customs, brand protection import' },
 ]
+async function fetchUnsplashImage(query) {
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
+      { headers: { Authorization: `Client-ID ${process.env.UNSPLASH_KEY}` } }
+    )
+    const data = await res.json()
+    if (data.results && data.results[0]) {
+      return {
+        url: data.results[0].urls.regular,
+        credit: data.results[0].user.name,
+        creditLink: data.results[0].user.links.html
+      }
+    }
+  } catch (e) {
+    console.log('Image fetch failed:', e.message)
+  }
+  return null
+}
 
+function generateQuickChart(title, labels, values) {
+  const chartConfig = {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Duty Rate %',
+        data: values,
+        backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16']
+      }]
+    },
+    options: {
+      plugins: {
+        title: { display: true, text: title }
+      }
+    }
+  }
+  return `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&width=600&height=300`
+}
 async function generateBlogPost(topic) {
   const prompt = `Write a comprehensive, SEO-optimized blog post for an import/tariff information website called TariffNav.
 
@@ -130,30 +168,16 @@ Write the complete blog post now:`
 
 async function main() {
   // Find which topic to write today
-  const { data: existing } = await supabase
-    .from('blog_posts')
-    .select('topic_index')
-    .order('topic_index', { ascending: false })
-    .limit(1)
+  // Fetch header image from Unsplash
+  const image = await fetchUnsplashImage(topic.keywords.split(',')[0])
+  
+  // Generate duty rate chart
+  const chartUrl = generateQuickChart(
+    'Sample US Duty Rates by Country',
+    ['US Base', 'China', 'Mexico', 'Canada', 'Japan', 'Germany', 'UK', 'India', 'Korea', 'Australia'],
+    [5, 30, 0, 0, 3, 3, 3, 10, 3, 5]
+  )
 
-  const lastIndex = existing?.[0]?.topic_index ?? -1
-  const nextIndex = lastIndex + 1
-
-  if (nextIndex >= TOPICS.length) {
-    console.log('All 90 topics completed!')
-    return
-  }
-
-  const topic = TOPICS[nextIndex]
-  console.log(`Writing blog post ${nextIndex + 1}/90: ${topic.title}`)
-
-  const content = await generateBlogPost(topic)
-
-  // Extract meta description
-  const metaMatch = content.match(/META:\s*(.+)/i)
-  const excerpt = metaMatch ? metaMatch[1].trim() : topic.title
-
-  // Save to Supabase
   const { error } = await supabase
     .from('blog_posts')
     .insert({
@@ -162,9 +186,11 @@ async function main() {
       content: content.replace(/META:.*\n?/i, '').trim(),
       excerpt,
       topic_index: nextIndex,
-      status: 'published'
+      status: 'published',
+      image_url: image?.url || null,
+      image_credit: image?.credit || null,
+      chart_url: chartUrl
     })
-
   if (error) {
     console.error('Error saving:', error)
   } else {

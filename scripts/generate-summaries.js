@@ -2,7 +2,16 @@ const Groq = require('groq-sdk')
 const { createClient } = require('@supabase/supabase-js')
 require('dotenv').config({ path: '.env.local' })
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const GROQ_KEYS = [
+  process.env.GROQ_API_KEY,
+  process.env.GROQ_KEY_2,
+].filter(Boolean)
+let keyIndex = 0
+function getGroq() {
+  const key = GROQ_KEYS[keyIndex % GROQ_KEYS.length]
+  keyIndex++
+  return new Groq({ apiKey: key })
+}
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -24,7 +33,7 @@ Cover these points in 2-3 paragraphs:
 Write in helpful professional tone. No jargon. No markdown. Plain paragraphs only.`
 
   try {
-    const response = await groq.chat.completions.create({
+    const response = await getGroq().chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       max_tokens: 350,
       messages: [{ role: 'user', content: prompt }]

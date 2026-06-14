@@ -74,13 +74,42 @@ export default async function BlogPostPage({ params }: Props) {
           {post.excerpt}
         </p>
       </div>
-
+{/* Header Image */}
+      {post.image_url && (
+        <div style={{ marginBottom: '2rem', borderRadius: '12px', overflow: 'hidden', position: 'relative' }}>
+          <img
+            src={post.image_url}
+            alt={post.title}
+            style={{ width: '100%', height: '300px', objectFit: 'cover' }}
+          />
+          {post.image_credit && (
+            <div style={{ position: 'absolute', bottom: 8, right: 12, fontSize: '11px', color: '#fff', background: 'rgba(0,0,0,0.5)', padding: '2px 8px', borderRadius: 4 }}>
+              Photo by {post.image_credit} on Unsplash
+            </div>
+          )}
+        </div>
+      )}
       {/* Content */}
       <article
         style={{ fontSize: '1rem', lineHeight: 1.8 }}
         dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
       />
-
+{/* Duty Rate Chart */}
+      {post.chart_url && (
+        <div style={{ margin: '2rem 0', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
+            Import Duty Rate Comparison
+          </h3>
+          <img
+            src={post.chart_url}
+            alt="Duty rate chart"
+            style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid var(--border)' }}
+          />
+          <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
+            Sample duty rates — search specific HS codes for exact rates
+          </p>
+        </div>
+      )}
       {/* CTA */}
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-glow)', borderRadius: '12px', padding: '1.5rem 2rem', margin: '3rem 0', textAlign: 'center' }}>
         <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Find Your HS Code Instantly</h3>
