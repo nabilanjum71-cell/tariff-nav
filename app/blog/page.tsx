@@ -34,8 +34,6 @@ export default async function BlogPage() {
           <Link key={post.slug} href={`/blog/${post.slug}`}
             className="card"
             style={{ textDecoration: 'none', display: 'block', transition: 'border-color 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border-glow)')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
           >
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontFamily: 'var(--font-mono)' }}>
               {new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
