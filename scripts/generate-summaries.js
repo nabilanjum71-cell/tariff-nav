@@ -17,7 +17,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH_SIZE = 500
+const BATCH_SIZE = 200
 const DELAY_MS = 800
 
 async function generateSummary(code) {
