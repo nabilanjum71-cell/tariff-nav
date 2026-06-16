@@ -87,7 +87,10 @@ function normalizeItem(item) {
 async function upsertBatch(records) {
   const { error } = await supabase
     .from('hs_codes')
-    .upsert(records, { onConflict: 'hts_code' })
+    .upsert(records, { 
+      onConflict: 'hts_code',
+      ignoreDuplicates: false
+    })
   if (error) console.log(`  Upsert error: ${error.message}`)
   else console.log(`  Saved ${records.length} records`)
 }

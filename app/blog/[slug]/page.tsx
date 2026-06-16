@@ -129,9 +129,7 @@ export default async function BlogPostPage({ params }: Props) {
             {related.map(r => (
               <Link key={r.slug} href={`/blog/${r.slug}`}
                 style={{ display: 'block', padding: '1rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', textDecoration: 'none', transition: 'border-color 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border-glow)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
-              >
+               >
                 <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{r.title}</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{r.excerpt}</div>
               </Link>
