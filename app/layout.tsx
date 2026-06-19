@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     siteName: 'TariffNav',
   },
   robots: { index: true, follow: true },
+  verification: {
+    google: 'wewjezoNa7BnP3tw4rtz5PuC7r9Lsmf7LuRJhvKyZS0',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
