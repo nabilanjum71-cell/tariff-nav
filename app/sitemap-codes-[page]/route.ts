@@ -4,10 +4,11 @@ const PAGE_SIZE = 3000
 
 export async function GET(
   _req: Request,
-  { params }: { params: { page: string } }
+  context: { params: Promise<{ page: string }> }
 ) {
   const baseUrl = 'https://tariff-nav.vercel.app'
-  const page = parseInt(params.page) || 1
+  const { page: pageParam } = await context.params
+  const page = parseInt(pageParam) || 1
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
 
