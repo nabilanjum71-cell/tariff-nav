@@ -50,12 +50,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         {/* Google Analytics 4 */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-PLACEHOLDER" strategy="afterInteractive" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-RGNX43NN9Z" strategy="afterInteractive" />
         <Script id="ga4-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-PLACEHOLDER');
+          gtag('config', 'G-RGNX43NN9Z');
         `}</Script>
         <Nav />
         <main>{children}</main>
