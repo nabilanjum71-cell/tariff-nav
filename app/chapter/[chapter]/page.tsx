@@ -267,10 +267,8 @@ export default async function ChapterPage({ params }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
             {codes.slice(0, 6).map(code => (
               <Link key={code.hts_code} href={`/hs-code/${code.hts_code.replace(/\./g, '-')}`}
-                className="card"
-                style={{ textDecoration: 'none', display: 'block', transition: 'border-color 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border-glow)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                className="card card-hover"
+                style={{ textDecoration: 'none', display: 'block' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                   <div>
