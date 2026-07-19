@@ -258,6 +258,37 @@ export default async function ChapterPage({ params }: Props) {
         </div>
       </section>
 
+      {/* Top HS Codes — Quick Links for SEO interlinking */}
+      {codes.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 className="font-display" style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>
+            Most Traded HS Codes in Chapter {chapterNum}
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
+            {codes.slice(0, 6).map(code => (
+              <Link key={code.hts_code} href={`/hs-code/${code.hts_code.replace(/\./g, '-')}`}
+                className="card"
+                style={{ textDecoration: 'none', display: 'block', transition: 'border-color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border-glow)')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--accent)', marginBottom: '4px' }}>{code.hts_code}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', lineHeight: 1.4 }}>
+                      {code.description?.slice(0, 55)}{code.description?.length > 55 ? '…' : ''}
+                    </div>
+                  </div>
+                  <span style={{ background: code.us_duty_rate === 0 ? 'rgba(34,197,94,0.1)' : 'var(--accent-dim)', color: code.us_duty_rate === 0 ? '#22c55e' : 'var(--accent)', padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {code.us_duty_rate === 0 ? 'Free' : `${code.us_duty_rate}%`}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* CTA */}
       <div style={{ textAlign: 'center', padding: '1.5rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
