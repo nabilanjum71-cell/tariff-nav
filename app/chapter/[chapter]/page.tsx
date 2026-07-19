@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Script from 'next/script'
 import { DutyBarChart } from '@/components/charts/DutyBarChart'
 import YouTubeSection from '@/components/YouTubeSection'
 type Props = { params: { chapter: string } }
@@ -135,8 +136,20 @@ export default async function ChapterPage({ params }: Props) {
   const avgByCode: Record<string, number> = {}
   codes.forEach(c => { avgByCode[c.hts_code] = c.us_duty_rate })
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://tariff-nav.vercel.app' },
+      { '@type': 'ListItem', position: 2, name: 'Chapters', item: 'https://tariff-nav.vercel.app/chapters' },
+      { '@type': 'ListItem', position: 3, name: `Chapter ${chapterNum} — ${meta.title}`, item: `https://tariff-nav.vercel.app/chapter/${chapterNum}` },
+    ],
+  }
+
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
+      <Script id={`breadcrumb-${chapterNum}`} type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       {/* Breadcrumb */}
       <nav style={{ padding: '1.5rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '6px' }}>
