@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 
 const PAGE_SIZE = 1000
-const PAGE = 5
+const PAGE = 8
 
 export async function GET() {
   const baseUrl = 'https://tariff-nav.vercel.app'
