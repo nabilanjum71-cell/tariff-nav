@@ -67,8 +67,22 @@ export default async function HSCodePage({ params }: Props) {
     hsCode.us_duty_rate < 5 ? 'rate-low' :
     hsCode.us_duty_rate < 15 ? 'rate-mid' : 'rate-high'
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://tariff-nav.vercel.app' },
+      { '@type': 'ListItem', position: 2, name: `Chapter ${chapter}`, item: `https://tariff-nav.vercel.app/chapter/${chapter}` },
+      { '@type': 'ListItem', position: 3, name: hsCode.hts_code, item: `https://tariff-nav.vercel.app/hs-code/${params.code}` },
+    ],
+  }
+
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
 
       {/* Breadcrumb */}
       <nav style={{ padding: '1.5rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '6px', alignItems: 'center' }}>

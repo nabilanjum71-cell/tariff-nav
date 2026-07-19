@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Script from 'next/script'
 import { supabase } from '@/lib/supabase'
 import HsSearch from '@/components/HsSearch'
 import DutyCalculator from '@/components/DutyCalculator'
@@ -60,6 +61,16 @@ const FAQ = [
   },
 ]
 
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+}
+
 export default function HomePage() {
   const [stats, setStats] = useState({ total_codes: 14556, countries: 164, chapters: 97 })
   const [recentCodes, setRecentCodes] = useState<any[]>([])
@@ -90,6 +101,11 @@ export default function HomePage() {
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
 
       {/* Hero */}
       <section style={{ padding: '5rem 0 3rem', textAlign: 'center' }}>
