@@ -2,7 +2,7 @@
 **Site:** https://tariff-nav.vercel.app
 **GitHub:** https://github.com/nabilanjum71-cell/tariff-nav
 **Project Location:** E:\tariff-nav (Windows PC)
-**Last Updated:** June 19, 2026
+**Last Updated:** July 19, 2026
 **Purpose:** Hand this file to any new Claude chat to continue exactly where we left off.
 
 ---
@@ -28,6 +28,16 @@
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase admin key |
 | `VERCEL_DEPLOY_HOOK` | Triggers Vercel rebuild after workflow |
+
+---
+
+## 📊 ANALYTICS & TRACKING (Added July 19, 2026)
+| Tool | ID | Purpose |
+|------|-----|---------|
+| Google Analytics 4 | `G-RGNX43NN9Z` | Traffic, clicks, conversions |
+| Microsoft Clarity | `xow9warv1p` | Heatmaps, session recordings |
+| Google Search Console | Verified | Indexing, impressions, clicks |
+| Bing Webmaster Tools | Verified | Bing indexing + traffic |
 
 ---
 
@@ -74,262 +84,194 @@
 ```
 E:\tariff-nav\
 ├── app\
-│   ├── page.tsx              ← Homepage
-│   ├── layout.tsx            ← Root layout — contains Google Search Console verification meta tag
-│   ├── sitemap.ts            ← Sitemap — paginates Supabase in chunks of 1000 to get all 14,556 pages
-│   ├── robots.ts             ← robots.txt
+│   ├── page.tsx                        ← Homepage
+│   ├── layout.tsx                      ← Root layout — GA4 + Clarity + Schema.org scripts
+│   ├── robots.ts                       ← robots.txt
+│   ├── sitemap.xml\route.ts            ← Sitemap INDEX — points to all 16 sub-sitemaps
+│   ├── sitemap-static.xml\route.ts     ← 105 static + chapter URLs
+│   ├── sitemap-codes-1.xml\route.ts    ← HS codes 1-1000
+│   ├── sitemap-codes-2.xml\route.ts    ← HS codes 1001-2000
+│   ├── sitemap-codes-3.xml\route.ts    ← HS codes 2001-3000
+│   ├── sitemap-codes-4.xml\route.ts    ← HS codes 3001-4000
+│   ├── sitemap-codes-5.xml\route.ts    ← HS codes 4001-5000
+│   ├── sitemap-codes-6.xml\route.ts    ← HS codes 5001-6000
+│   ├── sitemap-codes-7.xml\route.ts    ← HS codes 6001-7000
+│   ├── sitemap-codes-8.xml\route.ts    ← HS codes 7001-8000
+│   ├── sitemap-codes-9.xml\route.ts    ← HS codes 8001-9000
+│   ├── sitemap-codes-10.xml\route.ts   ← HS codes 9001-10000
+│   ├── sitemap-codes-11.xml\route.ts   ← HS codes 10001-11000
+│   ├── sitemap-codes-12.xml\route.ts   ← HS codes 11001-12000
+│   ├── sitemap-codes-13.xml\route.ts   ← HS codes 12001-13000
+│   ├── sitemap-codes-14.xml\route.ts   ← HS codes 13001-14000
+│   ├── sitemap-codes-15.xml\route.ts   ← HS codes 14001-14556
 │   ├── blog\page.tsx + [slug]\page.tsx
 │   ├── calculator\page.tsx
 │   ├── chapters\page.tsx
-│   ├── chapter\[chapter]\page.tsx
+│   ├── chapter\[chapter]\page.tsx      ← Has breadcrumb schema + top HS codes cards
 │   ├── compare\page.tsx
 │   ├── hs-code\[code]\page.tsx
-│   ├── privacy\page.tsx      ← Legal page (added June 17, 2026)
-│   ├── terms\page.tsx        ← Legal page (added June 17, 2026)
-│   └── disclaimer\page.tsx   ← Legal page (added June 17, 2026)
+│   ├── privacy\page.tsx
+│   ├── terms\page.tsx
+│   └── disclaimer\page.tsx
 ├── components\
 │   ├── Nav.tsx
-│   ├── Footer.tsx            ← Redesigned June 2026 — logo, nav links, legal links, data sources
+│   ├── Footer.tsx
 │   ├── HsSearch.tsx
 │   ├── DutyCalculator.tsx
 │   ├── YouTubeSection.tsx
 │   └── AlertsModal.tsx
+├── public\
+│   └── BingSiteAuth.xml                ← Bing Webmaster Tools verification
 ├── scripts\
-│   ├── fetch-data.js         ← DANGER: overwrites ai_summary with '' on upsert. Run MANUALLY ONLY, never in daily workflow
-│   ├── generate-summaries.js ← Daily AI summaries via Groq. BATCH_SIZE=130. Uses --batch= arg for offset
-│   └── generate-blog.js      ← Daily blog post via Groq key 3
+│   ├── fetch-data.js                   ← DANGER: MANUAL ONLY — wipes ai_summary
+│   ├── generate-summaries.js           ← Daily AI summaries
+│   └── generate-blog.js                ← Daily blog post
 └── .github\workflows\
-    └── daily-sync.yml        ← Runs 2x daily (6am + 6pm UTC). Steps: summaries → blog → Vercel rebuild
+    └── daily-sync.yml                  ← Runs 2x daily (6am + 6pm UTC)
 ```
 
 ---
 
-## ⚙️ GITHUB ACTIONS WORKFLOW (current state)
-**File:** `.github/workflows/daily-sync.yml`
-**Schedule:** 6am UTC + 6pm UTC daily (2 runs/day)
-**Steps per run:**
-1. Generate AI summaries (130 rows × 2 Groq keys = up to 260/run)
-2. Wait 30 seconds
-3. Generate 1 blog post (Groq key 3 + Unsplash)
-4. Trigger Vercel rebuild
+## ⚙️ GITHUB ACTIONS WORKFLOW
+**Schedule:** 6am UTC + 6pm UTC daily
+**Steps:** summaries → blog → Vercel rebuild
+**Expected:** ~520 AI summaries/day + 1 blog post/day
 
-**⚠️ CRITICAL — fetch-data.js was REMOVED from this workflow on June 18, 2026**
-Reason: fetch-data.js does a full row upsert including `ai_summary: ''`, which was wiping all AI summaries on every run. This was the root cause of summaries staying stuck at 137 for weeks. fetch-data.js now runs MANUALLY ONLY when duty rate data needs refreshing.
-
-**Expected output per day:**
-- ~520 new AI summaries (260 × 2 runs)
-- 1 new blog post with header image and chart
+**⚠️ CRITICAL — NEVER add fetch-data.js to daily-sync.yml — it wipes all ai_summary fields**
 
 ---
 
 ## ✅ PHASE 1 — FOUNDATION (COMPLETED June 2026)
-
-### Site & Pages
-- [x] Homepage — hero, search autocomplete, FAQ, stats, recently updated codes, highest duty rates
-- [x] 14,556 individual HS code pages — AI summary, duty rate charts, calculator, trade agreements, rate history
-- [x] 97 Chapter pages — descriptions, stats, duty rate chart, YouTube section, codes table
-- [x] Chapters listing page
-- [x] Blog listing page `/blog`
-- [x] Individual blog post pages `/blog/[slug]` — header image + chart
-- [x] Calculator page `/calculator`
-- [x] Compare page `/compare`
-- [x] Privacy Policy page `/privacy`
-- [x] Terms of Service page `/terms`
-- [x] Disclaimer page `/disclaimer`
-
-### Technical SEO
-- [x] Footer redesigned — logo, tagline, nav links, legal links, data sources, copyright
-- [x] robots.txt — allows all, points to sitemap
-- [x] Sitemap fixed — now paginates Supabase to include all 14,661 URLs (was capped at 1,100 due to Supabase default row limit of 1000)
-- [x] Google Search Console verified — HTML tag method in layout.tsx
-- [x] Sitemap submitted to Google Search Console (June 19, 2026)
-- [x] SEO meta tags on all pages
-- [x] Open Graph tags on all pages
-
-### Automation & Data Pipeline
-- [x] Daily AI summary generation — 2 Groq keys, 130 batches, 2x daily
-- [x] Daily blog post generation — Groq key 3 + Unsplash images
-- [x] Vercel auto-deploy after each workflow run
-- [x] fetch-data.js REMOVED from daily workflow (was wiping ai_summary — critical bug fixed)
-
-### Current Data Status (as of June 19, 2026)
-| Metric | Status |
-|--------|--------|
-| Total HS code pages | 14,556 |
-| Pages with AI summary | 527 (3.6%) |
-| Remaining | ~14,029 |
-| Days to complete at 520/day | ~27 days |
-| Blog posts published | Growing daily (90 topics planned) |
-| GitHub Actions | ✅ Green, 2x daily |
-| Google Search Console | ✅ Verified + sitemap submitted |
+- [x] All pages: Homepage, 14,556 HS code pages, 97 chapter pages, blog, calculator, compare, legal
+- [x] Footer, robots.txt, SEO meta, Open Graph tags
+- [x] Google Search Console verified
+- [x] Daily automation running (summaries + blog)
+- [x] fetch-data.js bug fixed
 
 ---
 
-## 🔴 PHASE 2 — ANALYTICS & NEW TOOLS (Start after 10 days monitoring)
-**Start Date: ~June 29, 2026**
+## ✅ PHASE 2 — ANALYTICS & SEO (COMPLETED July 19, 2026)
+- [x] Google Analytics 4 added (G-RGNX43NN9Z)
+- [x] Microsoft Clarity added (xow9warv1p)
+- [x] Bing Webmaster Tools verified + sitemap submitted
+- [x] Schema.org: FAQ, WebSite, BreadcrumbList added
+- [x] Chapter pages: Top HS Codes quick-link cards
+- [x] Internal linking: blog↔HS codes already existed
+- [x] Junk root folders removed
+- [x] Sitemap split into 16 files (index + 15 chunks of 1000 URLs)
+- [x] Sitemap submitted to Google Search Console
 
-### Day 1 — Analytics Setup
-- [ ] Install Google Analytics 4 (add script to layout.tsx)
-- [ ] Install Microsoft Clarity (free heatmaps — add script to layout.tsx)
-- [ ] Submit to Bing Webmaster Tools (https://www.bing.com/webmasters)
-- [ ] Add Google News RSS tariff headlines section to homepage
-
-### Day 2 — New Tools
-- [ ] HS Code AI Classifier — user describes product → AI suggests HS code
-- [ ] Section 301 Checker — enter HS code → see current China tariff status
-- [ ] Landed Cost Calculator — full breakdown with MPF (0.3464%), HMF (0.125%), freight, insurance
-
-### Day 3 — Schema.org Structured Data
-- [ ] FAQ schema on homepage (you already have FAQ section — add JSON-LD)
-- [ ] WebSite schema with SearchAction
-- [ ] BreadcrumbList schema on chapter and HS code pages
-- [ ] Add to layout.tsx or individual page files
-
-### Day 4 — Internal Linking
-- [ ] Add "Related Blog Posts" section to HS code pages
-- [ ] Add internal links from blog posts to relevant HS code pages
-- [ ] Add "Related HS Codes" section to chapter pages
-
-### Day 5 — YouTube Videos
-- [ ] Search YouTube for each chapter topic (list below) and add 2 real video IDs per chapter
-- [ ] Update video_ids column in Supabase for chapters: 84, 85, 87, 61, 62, 64, 94, 27
-- [ ] SQL to update: `UPDATE hs_codes SET video_ids = '["VIDEO_ID_1","VIDEO_ID_2"]' WHERE chapter = '84';`
-
-**YouTube search terms per chapter:**
-| Chapter | Search Term |
-|---------|------------|
-| 84 Machinery | "importing machinery HS code customs guide" |
-| 85 Electronics | "importing electronics Section 301 tariff USA" |
-| 87 Vehicles | "importing cars auto parts USA customs duty" |
-| 61/62 Clothing | "importing clothing apparel tariff duty rate" |
-| 64 Footwear | "importing shoes footwear tariff USA 37.5%" |
-| 94 Furniture | "importing furniture anti-dumping duty China" |
-| 27 Oil/Gas | "petroleum import duty HS code tariff" |
+### ⚠️ Sitemap Note (July 19, 2026)
+Search Console shows "Couldn't fetch" — this is Google delay, NOT a bug.
+All sitemap URLs open correctly in browser.
+Google already indexed 3,845 pages without sitemap via link crawling.
+Check August 9 if status updated to Success.
 
 ---
 
-## 🟡 PHASE 3 — CONTENT EXPANSION (Month 2)
-- [ ] Country import guide pages — `/import-from/china`, `/import-from/india`, `/import-from/mexico`
-- [ ] Product landing pages — `/import/laptops`, `/import/furniture`, `/import/clothing`
-- [ ] These pages target high-volume buyer-intent keywords
-- [ ] Duty Savings Calculator — shows savings with USMCA, GSP, KORUS trade agreements
-- [ ] Bulk HS Code Lookup — paste 10 codes, get all rates in one table
+## 📊 STATS ON JULY 19, 2026
+| Metric | Value |
+|--------|-------|
+| Google indexed pages | 3,845 |
+| Impressions (28 days) | 3,140 |
+| Clicks (28 days) | 12 |
+| Queries showing | 203 |
+| Avg position | 17.2 |
+| AI Summaries done | ~11,000+ |
+| Blog posts | 33 |
 
 ---
 
-## 💰 PHASE 4 — MONETIZATION (Month 3+)
-- [ ] Apply for Google AdSense (need ~3 months of content + real traffic first)
-- [ ] Add affiliate links to customs broker services (Flexport, Freightos, Customs City)
-- [ ] Add "Get a Quote" buttons on HS code pages linking to freight forwarders
-- [ ] Set up Stripe for Pro subscription ($9/month)
-- [ ] Pro features: bulk lookup, API access, email alerts with rate changes
+## 📅 AUGUST 9 — FULL AUDIT CHECKLIST
+**Share ALL screenshots with Claude before doing anything else**
 
----
-
-## 🚀 PHASE 5 — GROWTH & AUTHORITY (Month 4-6)
-- [ ] Reddit presence — post helpful tariff guides in r/importing, r/ecommerce, r/FulfillmentByAmazon
-- [ ] Twitter/X bot — auto-tweet daily tariff changes using GitHub Actions
-- [ ] Weekly email newsletter to subscribers (use Resend or SendGrid free tier)
-- [ ] Guest posts on importing/ecommerce blogs with backlinks to TariffNav
-- [ ] Submit to niche directories (customs broker directories, trade resource lists)
-- [ ] YouTube channel — short explainer videos for top HS code chapters
-
----
-
-## 📊 TRAFFIC & REVENUE TARGETS
-| Timeframe | Traffic Target | Revenue Target |
-|-----------|---------------|----------------|
-| Month 1-2 | 0-3,000/month | $0 (building) |
-| Month 3 | 3,000-10,000/month | $20-100 AdSense |
-| Month 4 | 10,000-30,000/month | $100-500/month |
-| Month 6 | 30,000-50,000/month | $500-2,000/month |
-| Month 12 | 50,000+/month | $2,000-10,000/month |
-
----
-
-## 📅 DAILY MONITORING ROUTINE (Do every morning — 5 min)
-
-### 1. Check GitHub Actions
-Go to: https://github.com/nabilanjum71-cell/tariff-nav/actions
-- Must show ✅ GREEN for both scheduled runs
-- If ❌ RED — screenshot the error log and fix immediately
-
-### 2. Check AI summary count (Supabase SQL Editor)
+### 1. Supabase SQL Editor — Run these:
 ```sql
-select count(case when ai_summary != '' and ai_summary is not null then 1 end) as has_summary 
-from hs_codes;
-```
-- Should increase by ~520 each day
-- If flat or decreasing — fetch-data.js may have been re-added to workflow accidentally
+-- AI summaries count
+select count(case when ai_summary != '' and ai_summary is not null then 1 end) as has_summary from hs_codes;
 
-### 3. Check blog posts
-```sql
+-- Blog posts count
+select count(*) as total_blogs from blog_posts;
+
+-- Latest 5 blogs
 select id, title, created_at from blog_posts order by created_at desc limit 5;
+
+-- Subscribers
+select count(*) as total_subscribers from subscribers;
 ```
-- Count should increase by 1 each day
 
-### 4. Check live site
-- https://tariff-nav.vercel.app/blog — new article should appear daily
+### 2. GitHub Actions
+- https://github.com/nabilanjum71-cell/tariff-nav/actions
+- Screenshot — must show ✅ green
 
-### 5. Check Search Console (weekly, every Friday)
-- Go to Indexing → Pages — how many pages are indexed?
-- Go to Performance — any clicks/impressions appearing yet?
-- Check for any Coverage errors
+### 3. Google Search Console — Screenshot all:
+- Performance → 28 days (clicks, impressions, queries)
+- Indexing → Pages (how many indexed?)
+- Sitemaps (did status change from "Couldn't fetch"?)
+
+### 4. Google Analytics 4
+- analytics.google.com → TariffNav property
+- Screenshot dashboard (users, sessions, page views)
+
+### 5. Microsoft Clarity
+- clarity.microsoft.com → TariffNav project
+- Screenshot (heatmaps/recordings showing?)
+
+### 6. Vercel
+- All deployments ✅ green?
+- Screenshot deployments page
+
+### 7. Live Site
+- https://tariff-nav.vercel.app (screenshot)
+- https://tariff-nav.vercel.app/chapter/84 (screenshot)
+- https://tariff-nav.vercel.app/hs-code/8471-30-01 (screenshot)
 
 ---
 
-## ⚠️ KNOWN ISSUES & IMPORTANT WARNINGS
+## 📅 ROADMAP
+| Date | Session | Goal |
+|------|---------|------|
+| ✅ June 2026 | Phase 1 | Site launched |
+| ✅ July 19, 2026 | Phase 2 | Analytics + SEO done |
+| **August 9, 2026** | Audit #1 | Check all metrics, fix issues |
+| **August 30, 2026** | Audit #2 | Check growth, add content |
+| **September 10, 2026** | Final Build | New tools, monetization, domain |
 
-### CRITICAL — fetch-data.js
-**NEVER run `node scripts/fetch-data.js` automatically or add it back to daily-sync.yml.**
-It does a full upsert with `ai_summary: ''` which wipes all AI summaries.
-Only run it manually when deliberately refreshing duty rate data, and ONLY after fixing the normalizeItem() function to exclude ai_summary from the upsert object.
+---
 
-### YouTube Videos
-All chapter pages have `video_ids: []` in the database — videos are shown as placeholders or empty. Phase 2 task to fix manually.
+## 🔴 THINGS STILL TO BUILD (September 10 session)
+- [ ] HS Code AI Classifier
+- [ ] Section 301 Checker
+- [ ] Landed Cost Calculator (upgraded)
+- [ ] Country pages: /import-from/china, /import-from/india, /import-from/mexico
+- [ ] Product pages: /import/laptops, /import/furniture, /import/clothing
+- [ ] Related Blog Posts on HS code pages
+- [ ] YouTube video IDs for top chapters
+- [ ] Google News RSS on homepage
+- [ ] Bulk HS Code Lookup
+- [ ] Custom domain transfer
+- [ ] Google AdSense application
+- [ ] Affiliate links (Flexport, Freightos)
+- [ ] Stripe Pro subscription ($9/month)
 
-### Junk folders in project root
-The following folders exist in `E:\tariff-nav\` root (NOT in `app\`) from earlier typo errors. They are harmless but messy:
-- `privacy\` (root level — wrong, real one is `app\privacy\`)
-- `terms\` (root level — wrong)
-- `disclaimer\` (root level — wrong)
-- `privacymkdir\` (typo artifact)
-- `termsmkdir\` (typo artifact)
-- `{app\` (typo artifact)
-- `sitemap_check.txt` (accidentally committed — harmless)
-These can be deleted and removed from git when convenient.
+---
 
-### Sitemap "Couldn't fetch" in Search Console
-As of June 19, 2026 (day of submission), Search Console showed "Couldn't fetch" with 0 discovered pages. This is normal timing — Google hadn't crawled it yet. Check again in 24-48 hours for an updated status.
+## ⚠️ CRITICAL WARNINGS
+1. **fetch-data.js** — NEVER in daily-sync.yml — wipes ai_summary
+2. **Sitemap** — DO NOT change sitemap structure — 16 files working correctly
+3. **app/ folders** — real pages in app/privacy, app/terms, app/disclaimer — root duplicates deleted
+4. **Build time** — 10-12 min on Vercel for 14,556 pages — NORMAL, do not cancel
 
 ---
 
 ## 🔧 USEFUL COMMANDS
-
 ```cmd
 cd E:\tariff-nav
-
-# Check build locally (WARNING: takes ~10-12 min for 7000+ pages)
-npm run build
-
-# Push changes
 git add .
-git commit -m "description of change"
+git commit -m "description"
 git push
-
-# Check workflow file
-notepad .github\workflows\daily-sync.yml
-
-# Check AI summary count in Supabase
-# (run in Supabase SQL Editor, not terminal)
-
-# Check sitemap URL count
-curl -s https://tariff-nav.vercel.app/sitemap.xml > sitemap_check.txt
-findstr /c:"<loc>" sitemap_check.txt | find /c "<loc>"
-
-# Open any file in notepad
 notepad app\layout.tsx
-notepad components\Footer.tsx
+notepad app\page.tsx
 ```
 
 ---
@@ -338,32 +280,16 @@ notepad components\Footer.tsx
 | Resource | URL |
 |----------|-----|
 | Live Site | https://tariff-nav.vercel.app |
-| Blog | https://tariff-nav.vercel.app/blog |
-| Sitemap | https://tariff-nav.vercel.app/sitemap.xml |
-| robots.txt | https://tariff-nav.vercel.app/robots.txt |
 | GitHub Repo | https://github.com/nabilanjum71-cell/tariff-nav |
 | GitHub Actions | https://github.com/nabilanjum71-cell/tariff-nav/actions |
-| Vercel Dashboard | https://vercel.com/dashboard |
-| Supabase Dashboard | https://supabase.com/dashboard |
-| Google Search Console | https://search.google.com/search-console |
+| Vercel | https://vercel.com/dashboard |
+| Supabase | https://supabase.com/dashboard |
+| Search Console | https://search.google.com/search-console |
+| Google Analytics | https://analytics.google.com |
+| Microsoft Clarity | https://clarity.microsoft.com |
+| Bing Webmaster | https://www.bing.com/webmasters |
 | Groq Console | https://console.groq.com |
-| Unsplash Developers | https://unsplash.com/developers |
-| Bing Webmaster Tools | https://www.bing.com/webmasters |
 
 ---
 
-## 💡 FUTURE FEATURE BACKLOG (Phase 5+)
-- PDF export of duty rate reports
-- API access for businesses (paid tier)
-- Mobile app (React Native)
-- Tariff change timeline visualization per HS code
-- Import cost comparison: China vs Vietnam vs India vs Mexico
-- CBP ruling database search
-- Customs broker directory
-- Trade show calendar for importers
-- Twitter/X auto-tweet bot for daily tariff changes
-- YouTube channel + auto-embed new videos via YouTube API
-
----
-
-*Created: June 19, 2026. Hand this file to any new Claude chat to continue from exactly where we left off. Always update the phase checkboxes and "Last Updated" date after completing tasks.*
+*Last Updated: July 19, 2026. For August 9 session — run ALL audit checks first and share screenshots before asking Claude to do anything.*
