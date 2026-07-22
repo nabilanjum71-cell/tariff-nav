@@ -77,12 +77,78 @@ export default async function HSCodePage({ params }: Props) {
     ],
   }
 
+  const rate = hsCode.us_duty_rate
+  const agreements = hsCode.trade_agreements || {}
+  const freeAgreements = Object.entries(agreements)
+    .filter(([, v]: [string, any]) => v === 'Free' || v === '0%' || v === 0)
+    .map(([k]) => k)
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `What is the US import duty rate for ${hsCode.description}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `The US import duty rate for ${hsCode.description} (HS code ${hsCode.hts_code}) is ${rate === 0 ? 'free (0%)' : `${rate}%`}. On a $10,000 shipment, you would pay $${(10000 * rate / 100).toFixed(2)} in duties plus MPF of $${Math.min(10000 * 0.003464, 614.35).toFixed(2)} and HMF of $12.50.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Is ${hsCode.description} eligible for USMCA duty-free treatment?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: freeAgreements.includes('USMCA')
+            ? `Yes, ${hsCode.description} (HS code ${hsCode.hts_code}) qualifies for 0% duty under USMCA when imported from Canada or Mexico, compared to the standard ${rate}% MFN rate. A Certificate of Origin is required to claim this benefit.`
+            : `${hsCode.description} (HS code ${hsCode.hts_code}) does not qualify for preferential USMCA rates. The standard ${rate === 0 ? 'free (0%)' : `${rate}%`} MFN rate applies regardless of country of origin.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `What trade agreements apply to HS code ${hsCode.hts_code}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: freeAgreements.length > 0
+            ? `HS code ${hsCode.hts_code} qualifies for 0% duty under ${freeAgreements.join(', ')}. Importers sourcing from eligible countries can save significantly compared to the standard ${rate}% MFN rate by providing a valid Certificate of Origin.`
+            : `HS code ${hsCode.hts_code} is subject to the standard MFN rate of ${rate === 0 ? 'free (0%)' : `${rate}%`}. No preferential trade agreement rates currently apply to this product.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `What documents are required to import ${hsCode.description} into the USA?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `To import ${hsCode.description} into the United States, you typically need a commercial invoice, packing list, bill of lading or airway bill, and CBP Form 7501 (Entry Summary). If claiming trade agreement benefits, a Certificate of Origin is also required.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `How do I calculate the total landed cost for HS code ${hsCode.hts_code}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `To calculate total landed cost for HS code ${hsCode.hts_code}, add your shipment value plus ${rate === 0 ? '0% duty' : `${rate}% duty`}, plus MPF (0.3464%, max $614.35), plus HMF (0.125%). For a $10,000 shipment the total is approximately $${(10000 + (10000 * rate / 100) + Math.min(10000 * 0.003464, 614.35) + 10000 * 0.00125).toFixed(2)}.`
+        }
+      }
+    ]
+  }
+
+  const speakableSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['.duty-speakable']
+    },
+    url: `https://tariff-nav.vercel.app/hs-code/${params.code}`
+  }
+
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
 
       {/* Breadcrumb */}
       <nav style={{ padding: '1.5rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -116,19 +182,66 @@ export default async function HSCodePage({ params }: Props) {
               {hsCode.us_duty_rate === 0 ? 'Duty Free' : hsCode.us_duty_rate < 5 ? 'Low Rate' : hsCode.us_duty_rate < 15 ? 'Moderate' : 'High Rate'}
             </div>
           </div>
+
+          {/* Speakable div for voice search */}
+          <p className="duty-speakable" style={{ display: 'none' }}>
+            {`The US import duty rate for ${hsCode.description} under HS code ${hsCode.hts_code} is ${hsCode.us_duty_rate === 0 ? 'free, meaning zero percent duty' : `${hsCode.us_duty_rate} percent`}. ${freeAgreements.length > 0 ? `This product qualifies for zero percent duty under ${freeAgreements.join(' and ')} trade agreements.` : ''}`}
+          </p>
         </div>
 
-        {/* AI Summary */}
-        {hsCode.ai_summary && (
-          <div className="card" style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--accent)' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--accent)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Plain-English Summary
-            </div>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.95rem' }}>
-              {hsCode.ai_summary}
-            </p>
+        {/* AI Summary — or auto-generated for pages without one */}
+        <div className="card" style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--accent)' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--accent)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Plain-English Summary
           </div>
-        )}
+          <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.95rem' }}>
+            {hsCode.ai_summary || `${hsCode.description} is classified under HS tariff code ${hsCode.hts_code} in the US Harmonized Tariff Schedule. Importers bringing this product into the United States are subject to ${hsCode.us_duty_rate === 0 ? 'duty-free (0%)' : `a ${hsCode.us_duty_rate}% duty rate`} at the border. Accurate HS classification is essential to ensure correct duty payment and avoid customs delays or penalties.`}
+          </p>
+        </div>
+
+        {/* Quick Facts Card */}
+        <div className="card" style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '1rem' }}>
+          {[
+            { label: 'HS Code', value: hsCode.hts_code, mono: true, color: 'var(--accent)' },
+            { label: 'US Duty Rate', value: hsCode.us_duty_rate === 0 ? 'FREE (0%)' : `${hsCode.us_duty_rate}%`, mono: true, color: hsCode.us_duty_rate === 0 ? '#22c55e' : 'var(--warning)' },
+            { label: 'MPF Fee', value: '0.3464%', mono: true, color: 'var(--text-secondary)' },
+            { label: 'HMF Fee', value: '0.125%', mono: true, color: 'var(--text-secondary)' },
+            { label: 'Countries', value: '164 covered', mono: false, color: 'var(--text-secondary)' },
+          ].map(({ label, value, mono, color }) => (
+            <div key={label}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{label}</div>
+              <div style={{ fontFamily: mono ? 'var(--font-mono)' : 'inherit', fontSize: '0.9rem', color }}>{value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Instant Cost Estimates — zero API, pure math */}
+        <div className="card" style={{ marginTop: '1rem', background: 'var(--bg-elevated)' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--accent)', marginBottom: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Instant Cost Estimate
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
+            {[10000, 50000, 100000].map(shipVal => {
+              const duty = shipVal * (hsCode.us_duty_rate / 100)
+              const mpf = Math.min(shipVal * 0.003464, 614.35)
+              const hmf = shipVal * 0.00125
+              const total = shipVal + duty + mpf + hmf
+              return (
+                <div key={shipVal} style={{ padding: '0.75rem', background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px' }}>${shipVal.toLocaleString()} shipment</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.9 }}>
+                    <div>Duty: <span style={{ color: 'var(--warning)', fontFamily: 'var(--font-mono)' }}>${duty.toFixed(2)}</span></div>
+                    <div>MPF: <span style={{ fontFamily: 'var(--font-mono)' }}>${mpf.toFixed(2)}</span></div>
+                    <div>HMF: <span style={{ fontFamily: 'var(--font-mono)' }}>${hmf.toFixed(2)}</span></div>
+                    <div style={{ borderTop: '1px solid var(--border)', marginTop: '4px', paddingTop: '4px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Total: <span style={{ color: '#22c55e', fontFamily: 'var(--font-mono)' }}>${total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </section>
 
       {/* ── Charts grid ── */}
@@ -200,6 +313,51 @@ export default async function HSCodePage({ params }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Trade Agreement Savings Table — zero API ── */}
+      {hsCode.trade_agreements && Object.keys(hsCode.trade_agreements).length > 0 && (
+        <section style={{ marginBottom: '2.5rem' }}>
+          <h2 className="font-display" style={{ fontSize: '1.4rem', marginBottom: '1.25rem' }}>Trade Agreement Savings</h2>
+          <div className="card" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  {['Agreement', 'Preferential Rate', 'Standard Rate', 'You Save', 'Eligible Countries'].map(h => (
+                    <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(hsCode.trade_agreements).map(([name, prefRate]: [string, any]) => {
+                  const saving = hsCode.us_duty_rate - (prefRate === 'Free' || prefRate === '0%' || prefRate === 0 ? 0 : parseFloat(prefRate) || 0)
+                  const countryMap: Record<string, string> = {
+                    USMCA: 'Canada, Mexico',
+                    GSP: '120+ developing countries',
+                    KORUS: 'South Korea',
+                    CPTPP: 'Japan, Vietnam, Canada, Australia + 7 more',
+                    CAFTA: 'Costa Rica, El Salvador, Guatemala, Honduras, Nicaragua, Dominican Republic',
+                    FTA: 'Various FTA partners',
+                  }
+                  return (
+                    <tr key={name} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{name}</td>
+                      <td style={{ padding: '10px 12px', color: '#22c55e', fontWeight: 600 }}>{prefRate === 'Free' || prefRate === 0 || prefRate === '0%' ? 'Free (0%)' : prefRate}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{hsCode.us_duty_rate === 0 ? 'Free' : `${hsCode.us_duty_rate}%`}</td>
+                      <td style={{ padding: '10px 12px', color: saving > 0 ? '#22c55e' : 'var(--text-muted)', fontWeight: saving > 0 ? 600 : 400 }}>
+                        {saving > 0 ? `${saving.toFixed(1)}% saved` : 'Same rate'}
+                      </td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{countryMap[name] || 'See agreement details'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+            <p style={{ margin: '10px 12px 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              💡 Certificate of Origin required to claim preferential rates. Verify eligibility with your customs broker.
+            </p>
           </div>
         </section>
       )}
