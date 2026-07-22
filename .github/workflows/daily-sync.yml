@@ -9,7 +9,7 @@ on:
 jobs:
   sync-data:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,15 +17,64 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
-      - name: Generate summaries
+
+      # ── EXISTING: AI Summaries ──────────────────────────────
+      - name: Generate AI summaries
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_KEY_2: ${{ secrets.GROQ_KEY_2 }}
         run: node scripts/generate-summaries.js
+
+      - name: Wait after summaries
+        run: sleep 30
+
+      # ── NEW: Import Guide (Mistral Key 1) ──────────────────
+      - name: Generate import guides
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MISTRAL_KEY_1: ${{ secrets.MISTRAL_KEY_1 }}
+        run: node scripts/generate-import-guide.js
+
+      - name: Wait after import guides
+        run: sleep 30
+
+      # ── NEW: Duty Breakdown (Mistral Key 2) ────────────────
+      - name: Generate duty breakdowns
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MISTRAL_KEY_2: ${{ secrets.MISTRAL_KEY_2 }}
+        run: node scripts/generate-duty-breakdown.js
+
+      - name: Wait after duty breakdowns
+        run: sleep 30
+
+      # ── NEW: Trade Guide (Groq Key 4) ──────────────────────
+      - name: Generate trade guides
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_KEY_4: ${{ secrets.GROQ_KEY_4 }}
+        run: node scripts/generate-trade-guide.js
+
+      - name: Wait after trade guides
+        run: sleep 30
+
+      # ── NEW: Importer FAQ (Groq Key 5) ─────────────────────
+      - name: Generate importer FAQs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_KEY_5: ${{ secrets.GROQ_KEY_5 }}
+        run: node scripts/generate-importer-faq.js
+
       - name: Wait before blog
         run: sleep 30
+
+      # ── EXISTING: Blog Post ─────────────────────────────────
       - name: Generate blog post
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -33,6 +82,8 @@ jobs:
           GROQ_KEY_3: ${{ secrets.GROQ_KEY_3 }}
           UNSPLASH_KEY: ${{ secrets.UNSPLASH_KEY }}
         run: node scripts/generate-blog.js
+
+      # ── Trigger Vercel rebuild ──────────────────────────────
       - name: Trigger Vercel rebuild
         env:
           VERCEL_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}

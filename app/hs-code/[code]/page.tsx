@@ -204,6 +204,68 @@ export default async function HSCodePage({ params }: Props) {
         </section>
       )}
 
+      {/* ── Import Guide ── */}
+      {hsCode.import_guide && (
+        <section style={{ marginBottom: '2.5rem' }}>
+          <h2 className="font-display" style={{ fontSize: '1.4rem', marginBottom: '1.25rem' }}>Import Guide</h2>
+          <div className="card" style={{ borderLeft: '3px solid var(--accent)' }}>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '0.95rem', margin: 0 }}>
+              {hsCode.import_guide}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ── Duty Breakdown ── */}
+      {hsCode.duty_breakdown && (
+        <section style={{ marginBottom: '2.5rem' }}>
+          <h2 className="font-display" style={{ fontSize: '1.4rem', marginBottom: '1.25rem' }}>Duty Cost Breakdown</h2>
+          <div className="card" style={{ borderLeft: '3px solid var(--warning)' }}>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '0.95rem', margin: 0 }}>
+              {hsCode.duty_breakdown}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ── Trade Agreement Guide ── */}
+      {hsCode.trade_guide && (
+        <section style={{ marginBottom: '2.5rem' }}>
+          <h2 className="font-display" style={{ fontSize: '1.4rem', marginBottom: '1.25rem' }}>Trade Agreement Savings Guide</h2>
+          <div className="card" style={{ borderLeft: '3px solid #22c55e' }}>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '0.95rem', margin: 0 }}>
+              {hsCode.trade_guide}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ── Importer FAQ ── */}
+      {hsCode.importer_faq && (
+        <section style={{ marginBottom: '2.5rem' }}>
+          <h2 className="font-display" style={{ fontSize: '1.4rem', marginBottom: '1.25rem' }}>Frequently Asked Questions</h2>
+          <div className="card">
+            {hsCode.importer_faq.split('\n').filter((line: string) => line.trim()).map((line: string, i: number) => {
+              if (line.startsWith('Q')) {
+                return (
+                  <div key={i} style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem', marginTop: i === 0 ? 0 : '1.25rem', marginBottom: '0.4rem' }}>
+                    {line.replace(/^Q\d+:\s*/, '')}
+                  </div>
+                )
+              }
+              if (line.startsWith('A')) {
+                return (
+                  <div key={i} style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.9rem', paddingLeft: '0.75rem', borderLeft: '2px solid var(--border)' }}>
+                    {line.replace(/^A\d+:\s*/, '')}
+                  </div>
+                )
+              }
+              return null
+            })}
+          </div>
+        </section>
+      )}
+
       {/* ── Related Codes ── */}
       {related && related.length > 0 && (
         <section style={{ marginBottom: '2.5rem' }}>
