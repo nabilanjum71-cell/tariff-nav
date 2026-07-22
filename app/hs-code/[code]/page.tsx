@@ -331,8 +331,14 @@ export default async function HSCodePage({ params }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(hsCode.trade_agreements).map(([name, prefRate]: [string, any]) => {
-                  const saving = hsCode.us_duty_rate - (prefRate === 'Free' || prefRate === '0%' || prefRate === 0 ? 0 : parseFloat(prefRate) || 0)
+                {Object.entries(hsCode.trade_agreements).map(([name, rawRate]: [string, any]) => {
+                  // Safely convert rate to string regardless of whether it's object, number, or string
+                  const prefRate: string = typeof rawRate === 'object' && rawRate !== null
+                    ? (rawRate.rate ?? rawRate.value ?? 'See details').toString()
+                    : String(rawRate ?? '')
+                  const isFree = prefRate === 'Free' || prefRate === '0%' || prefRate === '0' || rawRate === 0
+                  const numericRate = isFree ? 0 : parseFloat(prefRate) || 0
+                  const saving = hsCode.us_duty_rate - numericRate
                   const countryMap: Record<string, string> = {
                     USMCA: 'Canada, Mexico',
                     GSP: '120+ developing countries',
@@ -344,7 +350,7 @@ export default async function HSCodePage({ params }: Props) {
                   return (
                     <tr key={name} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{name}</td>
-                      <td style={{ padding: '10px 12px', color: '#22c55e', fontWeight: 600 }}>{prefRate === 'Free' || prefRate === 0 || prefRate === '0%' ? 'Free (0%)' : prefRate}</td>
+                      <td style={{ padding: '10px 12px', color: '#22c55e', fontWeight: 600 }}>{isFree ? 'Free (0%)' : prefRate}</td>
                       <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{hsCode.us_duty_rate === 0 ? 'Free' : `${hsCode.us_duty_rate}%`}</td>
                       <td style={{ padding: '10px 12px', color: saving > 0 ? '#22c55e' : 'var(--text-muted)', fontWeight: saving > 0 ? 600 : 400 }}>
                         {saving > 0 ? `${saving.toFixed(1)}% saved` : 'Same rate'}
