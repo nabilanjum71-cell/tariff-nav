@@ -2,7 +2,7 @@
 **Site:** https://tariff-nav.vercel.app
 **GitHub:** https://github.com/nabilanjum71-cell/tariff-nav
 **Project Location:** E:\tariff-nav (Windows PC)
-**Last Updated:** July 19, 2026
+**Last Updated:** July 25, 2026
 **Purpose:** Hand this file to any new Claude chat to continue exactly where we left off.
 
 ---
@@ -21,17 +21,21 @@
 ## 🔑 API KEYS (All stored in GitHub Secrets — never hardcode)
 | Secret Name | Purpose |
 |-------------|---------|
-| `GROQ_API_KEY` | Primary Groq key — AI summaries batch 1 |
-| `GROQ_KEY_2` | Secondary Groq key — AI summaries batch 2 |
-| `GROQ_KEY_3` | Third Groq key — blog posts only |
-| `UNSPLASH_KEY` | Unsplash API — blog header images |
+| `GROQ_API_KEY` | AI summaries batch 1 |
+| `GROQ_KEY_2` | AI summaries batch 2 |
+| `GROQ_KEY_3` | Blog posts only |
+| `GROQ_KEY_4` | Trade guide generation |
+| `GROQ_KEY_5` | Importer FAQ generation |
+| `MISTRAL_KEY_1` | Import guide generation |
+| `MISTRAL_KEY_2` | Duty breakdown generation |
+| `UNSPLASH_KEY` | Blog header images |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase admin key |
-| `VERCEL_DEPLOY_HOOK` | Triggers Vercel rebuild after workflow |
+| `VERCEL_DEPLOY_HOOK` | Triggers Vercel rebuild |
 
 ---
 
-## 📊 ANALYTICS & TRACKING (Added July 19, 2026)
+## 📊 ANALYTICS & TRACKING
 | Tool | ID | Purpose |
 |------|-----|---------|
 | Google Analytics 4 | `G-RGNX43NN9Z` | Traffic, clicks, conversions |
@@ -51,14 +55,18 @@
 | hs6 | text | 6-digit code |
 | chapter | text | chapter number |
 | description | text | product description |
-| ai_summary | text | AI plain-English summary — DO NOT overwrite on upsert |
+| ai_summary | text | DO NOT overwrite on upsert |
 | us_duty_rate | numeric | duty rate % |
 | duty_by_country | jsonb | rates for 164 countries |
 | rate_history | jsonb | historical rate changes |
 | trade_agreements | jsonb | USMCA, GSP, KORUS etc |
 | top_importers | text | country names |
 | trade_volume_usd | numeric | trade volume |
-| video_ids | text | YouTube video IDs (currently empty [] for all rows) |
+| video_ids | text | YouTube video IDs |
+| import_guide | text | NEW — Mistral Key 1 |
+| duty_breakdown | text | NEW — Mistral Key 2 |
+| trade_guide | text | NEW — Groq Key 4 |
+| importer_faq | text | NEW — Groq Key 5 |
 | updated_at | timestamptz | last update time |
 
 ### blog_posts
@@ -84,10 +92,10 @@
 ```
 E:\tariff-nav\
 ├── app\
-│   ├── page.tsx                        ← Homepage
-│   ├── layout.tsx                      ← Root layout — GA4 + Clarity + Schema.org scripts
-│   ├── robots.ts                       ← robots.txt
-│   ├── sitemap.xml\route.ts            ← Sitemap INDEX — points to all 16 sub-sitemaps
+│   ├── page.tsx
+│   ├── layout.tsx                      ← GA4 + Clarity + Schema.org
+│   ├── robots.ts
+│   ├── sitemap.xml\route.ts            ← Master index → 16 sub-sitemaps
 │   ├── sitemap-static.xml\route.ts     ← 105 static + chapter URLs
 │   ├── sitemap-codes-1.xml\route.ts    ← HS codes 1-1000
 │   ├── sitemap-codes-2.xml\route.ts    ← HS codes 1001-2000
@@ -107,9 +115,9 @@ E:\tariff-nav\
 │   ├── blog\page.tsx + [slug]\page.tsx
 │   ├── calculator\page.tsx
 │   ├── chapters\page.tsx
-│   ├── chapter\[chapter]\page.tsx      ← Has breadcrumb schema + top HS codes cards
+│   ├── chapter\[chapter]\page.tsx      ← breadcrumb schema + top HS codes
 │   ├── compare\page.tsx
-│   ├── hs-code\[code]\page.tsx
+│   ├── hs-code\[code]\page.tsx         ← ALL new sections added
 │   ├── privacy\page.tsx
 │   ├── terms\page.tsx
 │   └── disclaimer\page.tsx
@@ -121,110 +129,168 @@ E:\tariff-nav\
 │   ├── YouTubeSection.tsx
 │   └── AlertsModal.tsx
 ├── public\
-│   └── BingSiteAuth.xml                ← Bing Webmaster Tools verification
+│   └── BingSiteAuth.xml
 ├── scripts\
-│   ├── fetch-data.js                   ← DANGER: MANUAL ONLY — wipes ai_summary
-│   ├── generate-summaries.js           ← Daily AI summaries
-│   └── generate-blog.js                ← Daily blog post
+│   ├── fetch-data.js                   ← DANGER: MANUAL ONLY
+│   ├── generate-summaries.js           ← GROQ_API_KEY + GROQ_KEY_2
+│   ├── generate-blog.js                ← GROQ_KEY_3
+│   ├── generate-import-guide.js        ← MISTRAL_KEY_1 (NEW)
+│   ├── generate-duty-breakdown.js      ← MISTRAL_KEY_2 (NEW)
+│   ├── generate-trade-guide.js         ← GROQ_KEY_4 (NEW)
+│   └── generate-importer-faq.js        ← GROQ_KEY_5 (NEW)
 └── .github\workflows\
-    └── daily-sync.yml                  ← Runs 2x daily (6am + 6pm UTC)
+    └── daily-sync.yml
 ```
 
 ---
 
 ## ⚙️ GITHUB ACTIONS WORKFLOW
-**Schedule:** 6am UTC + 6pm UTC daily
-**Steps:** summaries → blog → Vercel rebuild
-**Expected:** ~520 AI summaries/day + 1 blog post/day
+**Schedule:** 6am UTC + 6pm UTC daily (2 runs/day)
+**Steps per run:**
+1. Generate AI summaries (GROQ_API_KEY + GROQ_KEY_2)
+2. Wait 30s
+3. Generate import guides (MISTRAL_KEY_1) — 100/run
+4. Wait 30s
+5. Generate duty breakdowns (MISTRAL_KEY_2) — 100/run
+6. Wait 30s
+7. Generate trade guides (GROQ_KEY_4) — 100/run
+8. Wait 30s
+9. Generate importer FAQs (GROQ_KEY_5) — 100/run
+10. Wait 30s
+11. Generate blog post (GROQ_KEY_3 + Unsplash)
+12. Trigger Vercel rebuild
 
-**⚠️ CRITICAL — NEVER add fetch-data.js to daily-sync.yml — it wipes all ai_summary fields**
+**Daily output:**
+- ~520 AI summaries
+- 200 import guides
+- 200 duty breakdowns
+- 200 trade guides
+- 200 importer FAQs
+- 1 blog post
 
----
-
-## ✅ PHASE 1 — FOUNDATION (COMPLETED June 2026)
-- [x] All pages: Homepage, 14,556 HS code pages, 97 chapter pages, blog, calculator, compare, legal
-- [x] Footer, robots.txt, SEO meta, Open Graph tags
-- [x] Google Search Console verified
-- [x] Daily automation running (summaries + blog)
-- [x] fetch-data.js bug fixed
-
----
-
-## ✅ PHASE 2 — ANALYTICS & SEO (COMPLETED July 19, 2026)
-- [x] Google Analytics 4 added (G-RGNX43NN9Z)
-- [x] Microsoft Clarity added (xow9warv1p)
-- [x] Bing Webmaster Tools verified + sitemap submitted
-- [x] Schema.org: FAQ, WebSite, BreadcrumbList added
-- [x] Chapter pages: Top HS Codes quick-link cards
-- [x] Internal linking: blog↔HS codes already existed
-- [x] Junk root folders removed
-- [x] Sitemap split into 16 files (index + 15 chunks of 1000 URLs)
-- [x] Sitemap submitted to Google Search Console
-
-### ⚠️ Sitemap Note (July 19, 2026)
-Search Console shows "Couldn't fetch" — this is Google delay, NOT a bug.
-All sitemap URLs open correctly in browser.
-Google already indexed 3,845 pages without sitemap via link crawling.
-Check August 9 if status updated to Success.
+**⚠️ CRITICAL — NEVER add fetch-data.js to daily-sync.yml**
 
 ---
 
-## 📊 STATS ON JULY 19, 2026
+## ✅ WHAT EVERY HS CODE PAGE NOW HAS
+
+### Zero API (Live on ALL 14,556 pages) ✅
+| Section | Source |
+|---------|--------|
+| AI Summary OR auto-generated summary | DB columns |
+| Quick Facts card (HS code, rate, MPF, HMF) | DB data |
+| Instant Cost Estimate (3 shipment sizes) | Pure math |
+| Trade Agreement Savings table | trade_agreements column |
+| FAQPage schema (5 auto Qs) | DB data |
+| Speakable schema | Voice search |
+| BreadcrumbList schema | Navigation |
+
+### API-Powered (filling 800/day) 🚀
+| Section | API | Words |
+|---------|-----|-------|
+| Import Guide | Mistral Key 1 | 150-200 |
+| Duty Breakdown | Mistral Key 2 | 150-200 |
+| Trade Agreement Guide | Groq Key 4 | 150-200 |
+| Importer FAQ | Groq Key 5 | 150-200 |
+
+**Total per page when complete: ~1,100+ words**
+
+---
+
+## ✅ COMPLETED PHASES
+
+### Phase 1 — Foundation (June 2026)
+- All pages live: homepage, 14,556 HS codes, 97 chapters, blog, calculator, compare, legal
+- Daily automation running
+- fetch-data.js bug fixed
+
+### Phase 2 — Analytics & SEO (July 19, 2026)
+- GA4 + Clarity added
+- Bing Webmaster Tools verified
+- Schema.org: FAQ, WebSite, BreadcrumbList, Speakable
+- Sitemap split into 16 files (index + 15 chunks of 1000)
+- Chapter pages: breadcrumb schema + top HS codes cards
+- Junk root folders removed
+
+### Phase 2.5 — Content Enrichment (July 22, 2026)
+- 4 new DB columns added
+- 4 new automation scripts created
+- Zero-API sections added to all pages
+- FAQPage + Speakable schemas on every HS code page
+- Trade Agreement Savings table on every page
+- Auto-summary for 3,500 pages with no AI summary
+
+---
+
+## 📊 STATS AS OF JULY 25, 2026
 | Metric | Value |
 |--------|-------|
 | Google indexed pages | 3,845 |
-| Impressions (28 days) | 3,140 |
-| Clicks (28 days) | 12 |
-| Queries showing | 203 |
-| Avg position | 17.2 |
-| AI Summaries done | ~11,000+ |
-| Blog posts | 33 |
+| Impressions (28 days) | 3,140+ |
+| Clicks (28 days) | 12+ |
+| Queries showing | 203+ |
+| AI Summaries done | ~9,366 |
+| Import guides done | ~200+ (fixing was 0 due to query bug) |
+| Duty breakdowns done | ~300 |
+| Trade guides done | ~170 |
+| Importer FAQs done | ~20 |
+| Blog posts | 33+ |
+
+### ⚠️ Bug Fixed July 25
+Supabase query filter `.or('import_guide.is.null,import_guide.eq.')` was wrong.
+Fixed to `.or('import_guide.is.null,import_guide.eq.""')` in all 4 scripts.
+All 4 scripts now working correctly from July 25 onwards.
 
 ---
 
-## 📅 AUGUST 9 — FULL AUDIT CHECKLIST
-**Share ALL screenshots with Claude before doing anything else**
+## 📅 AUGUST 9 AUDIT CHECKLIST
+**Run ALL these and share screenshots with Claude**
 
-### 1. Supabase SQL Editor — Run these:
+### 1. Supabase SQL — Run this one query:
 ```sql
--- AI summaries count
-select count(case when ai_summary != '' and ai_summary is not null then 1 end) as has_summary from hs_codes;
-
--- Blog posts count
-select count(*) as total_blogs from blog_posts;
-
--- Latest 5 blogs
-select id, title, created_at from blog_posts order by created_at desc limit 5;
-
--- Subscribers
-select count(*) as total_subscribers from subscribers;
+select
+count(case when ai_summary != '' and ai_summary is not null then 1 end) as ai_summaries,
+count(case when import_guide != '' and import_guide is not null then 1 end) as import_guides,
+count(case when duty_breakdown != '' and duty_breakdown is not null then 1 end) as duty_breakdowns,
+count(case when trade_guide != '' and trade_guide is not null then 1 end) as trade_guides,
+count(case when importer_faq != '' and importer_faq is not null then 1 end) as importer_faqs
+from hs_codes;
 ```
+
+**Expected August 9 results:**
+| Column | Expected |
+|--------|----------|
+| ai_summaries | 14,000+ (complete!) |
+| import_guides | 10,000+ |
+| duty_breakdowns | 10,000+ |
+| trade_guides | 10,000+ |
+| importer_faqs | 10,000+ |
 
 ### 2. GitHub Actions
 - https://github.com/nabilanjum71-cell/tariff-nav/actions
-- Screenshot — must show ✅ green
+- All recent runs ✅ green?
+- Screenshot
 
-### 3. Google Search Console — Screenshot all:
-- Performance → 28 days (clicks, impressions, queries)
+### 3. Google Search Console
+- Performance → 28 days (clicks, impressions)
 - Indexing → Pages (how many indexed?)
-- Sitemaps (did status change from "Couldn't fetch"?)
+- Sitemaps → status changed from "Couldn't fetch"?
+- Screenshot all 3
 
 ### 4. Google Analytics 4
-- analytics.google.com → TariffNav property
-- Screenshot dashboard (users, sessions, page views)
+- analytics.google.com → TariffNav
+- Users, sessions, page views
+- Screenshot
 
 ### 5. Microsoft Clarity
-- clarity.microsoft.com → TariffNav project
-- Screenshot (heatmaps/recordings showing?)
+- clarity.microsoft.com → TariffNav
+- Heatmaps showing?
+- Screenshot
 
-### 6. Vercel
-- All deployments ✅ green?
-- Screenshot deployments page
-
-### 7. Live Site
-- https://tariff-nav.vercel.app (screenshot)
-- https://tariff-nav.vercel.app/chapter/84 (screenshot)
-- https://tariff-nav.vercel.app/hs-code/8471-30-01 (screenshot)
+### 6. Live Site
+- https://tariff-nav.vercel.app/hs-code/8471-30-01
+- Check all sections visible
+- Screenshot
 
 ---
 
@@ -232,24 +298,25 @@ select count(*) as total_subscribers from subscribers;
 | Date | Session | Goal |
 |------|---------|------|
 | ✅ June 2026 | Phase 1 | Site launched |
-| ✅ July 19, 2026 | Phase 2 | Analytics + SEO done |
-| **August 9, 2026** | Audit #1 | Check all metrics, fix issues |
-| **August 30, 2026** | Audit #2 | Check growth, add content |
-| **September 10, 2026** | Final Build | New tools, monetization, domain |
+| ✅ July 19 | Phase 2 | Analytics + SEO |
+| ✅ July 22 | Phase 2.5 | Content enrichment pipeline |
+| **Aug 9** | Audit #1 | Check all metrics + fix issues |
+| **Aug 30** | Audit #2 | Check growth + add content |
+| **Sep 10** | Final Build | New tools + monetization + domain |
 
 ---
 
-## 🔴 THINGS STILL TO BUILD (September 10 session)
+## 🔴 STILL TO BUILD (September 10)
 - [ ] HS Code AI Classifier
 - [ ] Section 301 Checker
 - [ ] Landed Cost Calculator (upgraded)
 - [ ] Country pages: /import-from/china, /import-from/india, /import-from/mexico
-- [ ] Product pages: /import/laptops, /import/furniture, /import/clothing
+- [ ] Product pages: /import/laptops, /import/furniture
 - [ ] Related Blog Posts on HS code pages
 - [ ] YouTube video IDs for top chapters
 - [ ] Google News RSS on homepage
 - [ ] Bulk HS Code Lookup
-- [ ] Custom domain transfer
+- [ ] Custom domain transfer (tariffnav.com)
 - [ ] Google AdSense application
 - [ ] Affiliate links (Flexport, Freightos)
 - [ ] Stripe Pro subscription ($9/month)
@@ -258,9 +325,10 @@ select count(*) as total_subscribers from subscribers;
 
 ## ⚠️ CRITICAL WARNINGS
 1. **fetch-data.js** — NEVER in daily-sync.yml — wipes ai_summary
-2. **Sitemap** — DO NOT change sitemap structure — 16 files working correctly
-3. **app/ folders** — real pages in app/privacy, app/terms, app/disclaimer — root duplicates deleted
-4. **Build time** — 10-12 min on Vercel for 14,556 pages — NORMAL, do not cancel
+2. **Sitemap** — 16 files working, do not change structure
+3. **app/ folders** — real pages in app/privacy, app/terms, app/disclaimer
+4. **Build time** — 10-12 min on Vercel — normal, do not cancel
+5. **trade_agreements** — column stores objects not strings — always convert safely
 
 ---
 
@@ -271,7 +339,8 @@ git add .
 git commit -m "description"
 git push
 notepad app\layout.tsx
-notepad app\page.tsx
+notepad app\hs-code\[code]\page.tsx
+notepad .github\workflows\daily-sync.yml
 ```
 
 ---
@@ -280,16 +349,17 @@ notepad app\page.tsx
 | Resource | URL |
 |----------|-----|
 | Live Site | https://tariff-nav.vercel.app |
-| GitHub Repo | https://github.com/nabilanjum71-cell/tariff-nav |
-| GitHub Actions | https://github.com/nabilanjum71-cell/tariff-nav/actions |
+| GitHub | https://github.com/nabilanjum71-cell/tariff-nav |
+| Actions | https://github.com/nabilanjum71-cell/tariff-nav/actions |
 | Vercel | https://vercel.com/dashboard |
 | Supabase | https://supabase.com/dashboard |
 | Search Console | https://search.google.com/search-console |
-| Google Analytics | https://analytics.google.com |
-| Microsoft Clarity | https://clarity.microsoft.com |
+| Analytics | https://analytics.google.com |
+| Clarity | https://clarity.microsoft.com |
 | Bing Webmaster | https://www.bing.com/webmasters |
 | Groq Console | https://console.groq.com |
+| Mistral Console | https://console.mistral.ai |
 
 ---
 
-*Last Updated: July 19, 2026. For August 9 session — run ALL audit checks first and share screenshots before asking Claude to do anything.*
+*Last Updated: July 25, 2026. For August 9 — run ALL audit checks first and share screenshots before asking Claude to do anything. Always provide a fresh GitHub token at start of session.*
