@@ -47,6 +47,10 @@ Rules:
 - Write as if advising a real US business owner`
 
   try {
+    if (!process.env.MISTRAL_KEY_1) {
+      console.error('MISTRAL_KEY_1 is not set!')
+      return ''
+    }
     const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -59,8 +63,13 @@ Rules:
         messages: [{ role: 'user', content: prompt }]
       })
     })
+    if (!response.ok) {
+      const errText = await response.text()
+      console.error(`Mistral API error ${response.status}:`, errText)
+      return ''
+    }
     const data = await response.json()
-    return data.choices?.[0]?.message?.content || ''
+    return data.choices?.[0]?.message?.content?.trim() || ''
   } catch (err) {
     console.error(`Import guide failed for ${code.hts_code}:`, err.message)
     return ''
