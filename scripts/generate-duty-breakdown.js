@@ -87,7 +87,7 @@ async function main() {
   const { data: codes, error } = await supabase
     .from('hs_codes')
     .select('id, hts_code, description, us_duty_rate, rate_history, trade_agreements')
-    .or('duty_breakdown.is.null,duty_breakdown.eq.')
+    .or('duty_breakdown.is.null,duty_breakdown.eq.""')
     .limit(BATCH_SIZE)
 
   if (error) { console.error('Supabase error:', error); return }

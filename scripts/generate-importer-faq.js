@@ -76,7 +76,7 @@ async function main() {
   const { data: codes, error } = await supabase
     .from('hs_codes')
     .select('id, hts_code, description, us_duty_rate, trade_agreements, rate_history')
-    .or('importer_faq.is.null,importer_faq.eq.')
+    .or('importer_faq.is.null,importer_faq.eq.""')
     .limit(BATCH_SIZE)
 
   if (error) { console.error('Supabase error:', error); return }
