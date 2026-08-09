@@ -1,6 +1,7 @@
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
 
-export const dynamic = 'force-dynamic'
   title: "Privacy Policy | TariffNav",
   description: "TariffNav privacy policy — how we collect, use, and protect your data.",
 };

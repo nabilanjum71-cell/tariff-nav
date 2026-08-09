@@ -7,6 +7,7 @@ import { DutyBarChart } from '@/components/charts/DutyBarChart'
 import YouTubeSection from '@/components/YouTubeSection'
 
 export const dynamic = 'force-dynamic'
+
 type Props = { params: { chapter: string } }
 
 const CHAPTER_META: Record<string, { title: string; icon: string; description: string }> = {

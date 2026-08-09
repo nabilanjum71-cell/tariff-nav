@@ -1,6 +1,7 @@
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
 
-export const dynamic = 'force-dynamic'
   title: "Disclaimer | TariffNav",
   description: "Important disclaimer regarding duty rate data and AI-generated content on TariffNav.",
 };
