@@ -64,11 +64,13 @@ Rules:
 async function main() {
   console.log('Generating trade guides (Groq Key 4)\n')
 
-  const { data: codes, error } = await supabase
+  const { data: allCodes, error } = await supabase
     .from('hs_codes')
-    .select('id, hts_code, description, us_duty_rate, trade_agreements')
-    .or('trade_guide.is.null,trade_guide.eq.""')
-    .limit(BATCH_SIZE)
+    .select('id, hts_code, description, us_duty_rate, trade_agreements, trade_guide')
+    .order('hts_code', { ascending: true })
+    .limit(500)
+
+  const codes = (allCodes || []).filter(c => !c['trade_guide'] || c['trade_guide'].trim() === '').slice(0, BATCH_SIZE)
 
   if (error) { console.error('Supabase error:', error); return }
   if (!codes?.length) { console.log('All trade guides done!'); return }

@@ -84,11 +84,13 @@ Rules:
 async function main() {
   console.log('Generating duty breakdowns (Mistral Key 2)\n')
 
-  const { data: codes, error } = await supabase
+  const { data: allCodes, error } = await supabase
     .from('hs_codes')
-    .select('id, hts_code, description, us_duty_rate, rate_history, trade_agreements')
-    .or('duty_breakdown.is.null,duty_breakdown.eq.""')
-    .limit(BATCH_SIZE)
+    .select('id, hts_code, description, us_duty_rate, rate_history, trade_agreements, duty_breakdown')
+    .order('hts_code', { ascending: true })
+    .limit(500)
+
+  const codes = (allCodes || []).filter(c => !c['duty_breakdown'] || c['duty_breakdown'].trim() === '').slice(0, BATCH_SIZE)
 
   if (error) { console.error('Supabase error:', error); return }
   if (!codes?.length) { console.log('All duty breakdowns done!'); return }
