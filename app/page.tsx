@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import HsSearch from '@/components/HsSearch'
 import DutyCalculator from '@/components/DutyCalculator'
 
+export const dynamic = 'force-dynamic'
+
 const HS_CHAPTERS = [
   { num: '01', title: 'Live Animals', icon: '🐄' },
   { num: '02', title: 'Meat & Edible Offal', icon: '🥩' },

@@ -2,6 +2,8 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 export default function CalculatorPage() {
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState<any[]>([])

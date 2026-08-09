@@ -11,6 +11,8 @@ import { TradeAgreements } from '@/components/shared'
 import { RelatedCodes } from '@/components/shared'
 import type { HSCode } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 type Props = { params: { code: string } }
 
 // Convert URL slug back to HTS code: "8471-30-01" → "8471.30.01"

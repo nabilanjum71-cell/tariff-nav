@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default function ComparePage() {
   const [query1, setQuery1] = useState('')
   const [query2, setQuery2] = useState('')

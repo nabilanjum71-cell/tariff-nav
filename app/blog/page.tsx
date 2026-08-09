@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Import & Tariff Blog — TariffNav',
   description: 'Expert guides on HS codes, import duties, trade agreements, and US customs regulations. Updated daily.',

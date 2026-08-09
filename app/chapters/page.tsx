@@ -1,6 +1,8 @@
 'use client'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 const ALL_CHAPTERS = [
   { num: '01', title: 'Live Animals', icon: '🐄' },
   { num: '02', title: 'Meat & Edible Offal', icon: '🥩' },
