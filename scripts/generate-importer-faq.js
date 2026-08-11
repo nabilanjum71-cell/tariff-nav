@@ -73,13 +73,11 @@ Rules:
 async function main() {
   console.log('Generating importer FAQs (Groq Key 5)\n')
 
-  const { data: allCodes, error } = await supabase
+  const { data: codes, error } = await supabase
     .from('hs_codes')
-    .select('id, hts_code, description, us_duty_rate, trade_agreements, rate_history, importer_faq')
-    .order('hts_code', { ascending: true })
-    .limit(500)
-
-  const codes = (allCodes || []).filter(c => !c['importer_faq'] || c['importer_faq'].trim() === '').slice(0, BATCH_SIZE)
+    .select('id, hts_code, description, us_duty_rate, trade_agreements, rate_history')
+    .or('importer_faq.is.null,importer_faq.eq.')
+    .limit(BATCH_SIZE)
 
   if (error) { console.error('Supabase error:', error); return }
   if (!codes?.length) { console.log('All FAQs done!'); return }

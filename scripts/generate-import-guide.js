@@ -79,13 +79,12 @@ Rules:
 async function main() {
   console.log('Generating import guides (Mistral Key 1)\n')
 
-  const { data: allCodes, error } = await supabase
+  // Use rpc to fetch rows with empty import_guide
+  const { data: codes, error } = await supabase
     .from('hs_codes')
-    .select('id, hts_code, description, us_duty_rate, trade_agreements, top_importers, trade_volume_usd, import_guide')
-    .order('hts_code', { ascending: true })
-    .limit(500)
-
-  const codes = (allCodes || []).filter(c => !c['import_guide'] || c['import_guide'].trim() === '').slice(0, BATCH_SIZE)
+    .select('id, hts_code, description, us_duty_rate, trade_agreements, top_importers, trade_volume_usd')
+    .or('import_guide.is.null,import_guide.eq.')
+    .limit(BATCH_SIZE)
 
   if (error) { console.error('Supabase error:', error); return }
   if (!codes?.length) { console.log('All import guides done!'); return }
