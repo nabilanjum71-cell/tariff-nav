@@ -1,20 +1,22 @@
+const Groq = require('groq-sdk')
 const { createClient } = require('@supabase/supabase-js')
 require('dotenv').config({ path: '.env.local' })
 
+const groq = new Groq({ apiKey: process.env.GROQ_KEY_4 })
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
 const BATCH_SIZE = 100
-const DELAY_MS = 800
+const DELAY_MS = 500
 
 async function generateImportGuide(code) {
   const dutyText = code.us_duty_rate === 0
     ? 'duty-free (0%)'
     : `${code.us_duty_rate}% duty rate`
 
-  const tradeAgreements = code.trade_agreements
+  const agreements = code.trade_agreements
     ? Object.entries(code.trade_agreements)
         .filter(([, v]) => v === 'Free' || v === '0%' || v === 0)
         .map(([k]) => k)
@@ -30,7 +32,7 @@ HS Code: ${code.hts_code}
 US Duty Rate: ${dutyText}
 ${code.trade_volume_usd ? `Annual Trade Volume: $${(code.trade_volume_usd / 1e9).toFixed(1)} Billion` : ''}
 ${code.top_importers ? `Top Source Countries: ${code.top_importers}` : ''}
-${tradeAgreements ? `Trade Agreement Benefits: ${tradeAgreements}` : ''}
+${agreements ? `Free Trade Agreements: ${agreements}` : ''}
 
 Write SPECIFICALLY about THIS product. Cover:
 1. What industries and businesses import this product and why
@@ -47,29 +49,12 @@ Rules:
 - Write as if advising a real US business owner`
 
   try {
-    if (!process.env.MISTRAL_KEY_1) {
-      console.error('MISTRAL_KEY_1 is not set!')
-      return ''
-    }
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.MISTRAL_KEY_1}`
-      },
-      body: JSON.stringify({
-        model: 'mistral-small-latest',
-        max_tokens: 350,
-        messages: [{ role: 'user', content: prompt }]
-      })
+    const response = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      max_tokens: 350,
+      messages: [{ role: 'user', content: prompt }]
     })
-    if (!response.ok) {
-      const errText = await response.text()
-      console.error(`Mistral API error ${response.status}:`, errText)
-      return ''
-    }
-    const data = await response.json()
-    return data.choices?.[0]?.message?.content?.trim() || ''
+    return response.choices[0]?.message?.content?.trim() || ''
   } catch (err) {
     console.error(`Import guide failed for ${code.hts_code}:`, err.message)
     return ''
@@ -77,9 +62,8 @@ Rules:
 }
 
 async function main() {
-  console.log('Generating import guides (Mistral Key 1)\n')
+  console.log('Generating import guides (Groq Key 4)\n')
 
-  // Use rpc to fetch rows with empty import_guide
   const { data: codes, error } = await supabase
     .from('hs_codes')
     .select('id, hts_code, description, us_duty_rate, trade_agreements, top_importers, trade_volume_usd')

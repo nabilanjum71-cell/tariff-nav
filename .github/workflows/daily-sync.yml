@@ -35,7 +35,7 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          MISTRAL_KEY_1: ${{ secrets.MISTRAL_KEY_1 }}
+          GROQ_KEY_4: ${{ secrets.GROQ_KEY_4 }}
         run: node scripts/generate-import-guide.js
 
       - name: Wait after import guides
@@ -46,7 +46,7 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          MISTRAL_KEY_2: ${{ secrets.MISTRAL_KEY_2 }}
+          GROQ_KEY_5: ${{ secrets.GROQ_KEY_5 }}
         run: node scripts/generate-duty-breakdown.js
 
       - name: Wait after duty breakdowns
