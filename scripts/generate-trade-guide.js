@@ -8,8 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH_SIZE = 100
-const DELAY_MS = 800
+const BATCH_SIZE = 50
+const DELAY_MS = 1200
 
 async function generateTradeGuide(code) {
   const agreements = code.trade_agreements || {}
@@ -64,13 +64,11 @@ Rules:
 async function main() {
   console.log('Generating trade guides (Groq Key 4)\n')
 
-  const { data: allCodes, error } = await supabase
+  const { data: codes, error } = await supabase
     .from('hs_codes')
-    .select('id, hts_code, description, us_duty_rate, trade_agreements, trade_guide')
-    .order('hts_code', { ascending: true })
-    .limit(500)
-
-  const codes = (allCodes || []).filter(c => !c['trade_guide'] || c['trade_guide'].trim() === '').slice(0, BATCH_SIZE)
+    .select('id, hts_code, description, us_duty_rate, trade_agreements')
+    .is('trade_guide', null)
+    .limit(BATCH_SIZE)
 
   if (error) { console.error('Supabase error:', error); return }
   if (!codes?.length) { console.log('All trade guides done!'); return }

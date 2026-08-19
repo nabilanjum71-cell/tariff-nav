@@ -8,8 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH_SIZE = 100
-const DELAY_MS = 800
+const BATCH_SIZE = 50
+const DELAY_MS = 1200
 
 async function generateImporterFaq(code) {
   const rate = parseFloat(code.us_duty_rate) || 0
