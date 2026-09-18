@@ -18,7 +18,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
 
-      # ── EXISTING: AI Summaries ──────────────────────────────
+      # ── AI Summaries (complete) ─────────────────────────────
       - name: Generate AI summaries
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -27,54 +27,85 @@ jobs:
           GROQ_KEY_2: ${{ secrets.GROQ_KEY_2 }}
         run: node scripts/generate-summaries.js
 
-      - name: Wait after summaries
-        run: sleep 30
+      - run: sleep 20
 
-      # ── NEW: Import Guide (Mistral Key 1) ──────────────────
-      - name: Generate import guides
+      # ── IMPORT GUIDE — 3 keys = 300/run ────────────────────
+      - name: Import Guide (Key 4)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_KEY_4: ${{ secrets.GROQ_KEY_4 }}
-        run: node scripts/generate-import-guide.js
+        run: node scripts/generate-content-batch.js --section=import_guide --key=GROQ_KEY_4
 
-      - name: Wait after import guides
-        run: sleep 30
+      - run: sleep 15
 
-      # ── NEW: Duty Breakdown (Mistral Key 2) ────────────────
-      - name: Generate duty breakdowns
+      - name: Import Guide (Key 11)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY_11: ${{ secrets.GROQ_API_KEY_11 }}
+        run: node scripts/generate-content-batch.js --section=import_guide --key=GROQ_API_KEY_11
+
+      - run: sleep 15
+
+      - name: Import Guide (Key 12)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY_12: ${{ secrets.GROQ_API_KEY_12 }}
+        run: node scripts/generate-content-batch.js --section=import_guide --key=GROQ_API_KEY_12
+
+      - run: sleep 15
+
+      # ── DUTY BREAKDOWN — 3 keys = 300/run ──────────────────
+      - name: Duty Breakdown (Key 5)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_KEY_5: ${{ secrets.GROQ_KEY_5 }}
-        run: node scripts/generate-duty-breakdown.js
+        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_5
 
-      - name: Wait after duty breakdowns
-        run: sleep 30
+      - run: sleep 15
 
-      # ── NEW: Trade Guide (Groq Key 4) ──────────────────────
-      - name: Generate trade guides
+      - name: Duty Breakdown (Key 14)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_4: ${{ secrets.GROQ_KEY_4 }}
-        run: node scripts/generate-trade-guide.js
+          GROQ_KEY_14: ${{ secrets.GROQ_KEY_14 }}
+        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_14
 
-      - name: Wait after trade guides
-        run: sleep 30
+      - run: sleep 15
 
-      # ── NEW: Importer FAQ (Groq Key 5) ─────────────────────
-      - name: Generate importer FAQs
+      - name: Duty Breakdown (Key 15)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_KEY_15: ${{ secrets.GROQ_KEY_15 }}
+        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_15
+
+      - run: sleep 15
+
+      # ── TRADE GUIDE — Key 4 ─────────────────────────────────
+      - name: Trade Guide (Key 1 new)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_KEY_1: ${{ secrets.GROQ_KEY_1 }}
+        run: node scripts/generate-content-batch.js --section=trade_guide --key=GROQ_KEY_1
+
+      - run: sleep 15
+
+      # ── IMPORTER FAQ — Key 5 ────────────────────────────────
+      - name: Importer FAQ (Key 5)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_KEY_5: ${{ secrets.GROQ_KEY_5 }}
-        run: node scripts/generate-importer-faq.js
+        run: node scripts/generate-content-batch.js --section=importer_faq --key=GROQ_KEY_5
 
-      - name: Wait before blog
-        run: sleep 30
+      - run: sleep 15
 
-      # ── EXISTING: Blog Post ─────────────────────────────────
+      # ── BLOG POST ───────────────────────────────────────────
       - name: Generate blog post
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -83,4 +114,3 @@ jobs:
           UNSPLASH_KEY: ${{ secrets.UNSPLASH_KEY }}
         run: node scripts/generate-blog.js
 
-      # Vercel rebuild disabled — force-dynamic serves fresh data without rebuild
