@@ -9,6 +9,7 @@ const supabase = createClient(
 )
 
 const BATCH_SIZE = 50
+const MODEL = 'llama-3.1-8b-instant'
 const DELAY_MS = 1200
 
 async function generateImportGuide(code) {
@@ -49,16 +50,34 @@ Rules:
 - Write as if advising a real US business owner`
 
   try {
-    const response = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      max_tokens: 350,
-      messages: [{ role: 'user', content: prompt }]
-    })
-    return response.choices[0]?.message?.content?.trim() || ''
+    return await callGroqWithRetry(groq, prompt, MODEL)
   } catch (err) {
     console.error(`Import guide failed for ${code.hts_code}:`, err.message)
     return ''
   }
+}
+
+
+async function callGroqWithRetry(groq, prompt, model = 'llama-3.3-70b-versatile') {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await groq.chat.completions.create({
+        model,
+        max_tokens: 350,
+        messages: [{ role: 'user', content: prompt }]
+      })
+      return response.choices[0]?.message?.content?.trim() || ''
+    } catch (err) {
+      if (err.status === 429) {
+        console.log(`Rate limited, waiting ${(attempt + 1) * 30}s...`)
+        await new Promise(r => setTimeout(r, (attempt + 1) * 30000))
+      } else {
+        console.error('Groq error:', err.message)
+        return ''
+      }
+    }
+  }
+  return ''
 }
 
 async function main() {
