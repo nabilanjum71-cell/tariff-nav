@@ -6,11 +6,11 @@ import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: {
-    default: 'TariffNav — HS Code & Import Duty Explorer',
+    default: 'TariffNav — Free HS Code Lookup & US Import Duty Calculator',
     template: '%s | TariffNav'
   },
-  description: 'Plain-English duty rates, trade agreements, and import data for every HS tariff code. Updated daily from official government sources.',
-  keywords: ['HS code', 'tariff', 'import duty', 'customs', 'trade', 'HTS code'],
+  description: 'Free HS code lookup tool with US import duty rates for 14,556 HTS codes. Find tariff rates for 164 countries, USMCA benefits, Section 301 China tariffs, and landed cost calculator. Updated daily from USITC.',
+  keywords: ['HS code lookup', 'HTS code', 'import duty rates', 'US tariff', 'customs duty calculator', 'USMCA', 'Section 301', 'trade agreements', 'landed cost calculator', 'harmonized tariff schedule'],
   openGraph: {
     type: 'website',
     locale: 'en_US',

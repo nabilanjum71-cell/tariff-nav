@@ -31,8 +31,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return { title: 'HS Code Not Found' }
 
   return {
-    title: `HS Code ${data.hts_code} — ${data.description.slice(0, 60)}`,
-    description: `Import duty rates for HS code ${data.hts_code}: ${data.description}. Current US rate: ${data.us_duty_rate}%. View rates for 164 countries, trade agreements, and history.`,
+    title: `HS Code ${data.hts_code} — ${data.description.slice(0, 50)} | US Duty Rate ${data.us_duty_rate === 0 ? 'Free' : data.us_duty_rate + '%'}`,
+    description: `HS code ${data.hts_code}: ${data.description.slice(0, 100)}. US import duty rate: ${data.us_duty_rate === 0 ? 'Free (0%)' : data.us_duty_rate + '%'}. View duty rates for 164 countries, trade agreements (USMCA, GSP), rate history and landed cost calculator.`,
+    alternates: {
+      canonical: `https://tariff-nav.vercel.app/hs-code/${params.code}`,
+    },
     openGraph: {
       title: `HS ${data.hts_code} — Duty Rate: ${data.us_duty_rate === 0 ? 'Free' : data.us_duty_rate + '%'}`,
       description: data.description,

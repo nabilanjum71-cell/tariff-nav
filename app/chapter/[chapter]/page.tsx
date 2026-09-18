@@ -113,8 +113,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const meta = CHAPTER_META[params.chapter.padStart(2, '0')]
   const title = meta?.title || `HS Chapter ${params.chapter}`
   return {
-    title: `HS Chapter ${params.chapter} — ${title} | TariffNav`,
-    description: `Browse all HS codes in Chapter ${params.chapter}: ${title}. ${meta?.description || ''} View duty rates for 164 countries.`,
+    title: `HS Chapter ${params.chapter}: ${title} — Import Duty Rates & HS Codes | TariffNav`,
+    description: `Complete list of HS codes in Chapter ${params.chapter} (${title}). ${meta?.description?.slice(0, 100) || ''} Find US import duty rates, USMCA benefits, and trade agreements for all ${title.toLowerCase()} products.`,
   }
 }
 
