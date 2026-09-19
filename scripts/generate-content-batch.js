@@ -1,20 +1,19 @@
-// Universal content generator — pass --section and --key args
 const Groq = require('groq-sdk')
 const { createClient } = require('@supabase/supabase-js')
 require('dotenv').config({ path: '.env.local' })
 
 const args = process.argv.slice(2)
-const sectionArg = args.find(a => a.startsWith('--section='))?.split('=')[1]
-const keyArg = args.find(a => a.startsWith('--key='))?.split('=')[1]
+const section = args.find(a => a.startsWith('--section='))?.split('=')[1]
+const keyName = args.find(a => a.startsWith('--key='))?.split('=')[1]
 
-if (!sectionArg || !keyArg) {
-  console.error('Usage: node generate-content-batch.js --section=import_guide --key=GROQ_KEY_6')
+if (!section || !keyName) {
+  console.error('Usage: node generate-content-batch.js --section=import_guide --key=GROQ_KEY_4')
   process.exit(1)
 }
 
-const apiKey = process.env[keyArg]
+const apiKey = process.env[keyName]
 if (!apiKey) {
-  console.error(`API key ${keyArg} not set!`)
+  console.log(`⚠️  ${keyName} not set — skipping`)
   process.exit(0)
 }
 
@@ -24,81 +23,93 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH_SIZE = 100
-const DELAY_MS = 800
+const BATCH = 100
+const DELAY = 700
 const MODEL = 'llama-3.1-8b-instant'
 
-function buildPrompt(section, code) {
-  const rate = code.us_duty_rate === 0 ? 'Free (0%)' : `${code.us_duty_rate}%`
-  const agreements = code.trade_agreements
-    ? Object.entries(code.trade_agreements)
-        .filter(([,v]) => v === 'Free' || v === '0%' || v === 0)
-        .map(([k]) => k).join(', ')
+function buildPrompt(section, c) {
+  const rate = c.us_duty_rate === 0 ? 'Free (0%)' : `${c.us_duty_rate}%`
+  const fta = c.trade_agreements
+    ? Object.entries(c.trade_agreements)
+        .filter(([,v]) => v==='Free'||v==='0%'||v===0)
+        .map(([k])=>k).join(', ')
     : ''
+  const base = `Product: "${c.description}"\nHS Code: ${c.hts_code}\nUS Duty: ${rate}${fta?'\nFree under: '+fta:''}`
 
-  const base = `Product: "${code.description}"\nHS Code: ${code.hts_code}\nUS Duty Rate: ${rate}\n${agreements ? `Free Trade Agreements: ${agreements}` : ''}`
+  const d = c.us_duty_rate || 0
+  const ship10 = { duty:(10000*d/100).toFixed(2), mpf:Math.min(10000*0.003464,614.35).toFixed(2), total:(10000+(10000*d/100)+Math.min(10000*0.003464,614.35)+12.5).toFixed(2) }
+  const ship50 = { duty:(50000*d/100).toFixed(2), mpf:Math.min(50000*0.003464,614.35).toFixed(2), total:(50000+(50000*d/100)+Math.min(50000*0.003464,614.35)+62.5).toFixed(2) }
 
   const prompts = {
-    import_guide: `You are a US customs expert. Write a 160-180 word Import Guide for US importers of this product:\n${base}\n\nCover: who imports it and why, key considerations, one practical tip. Plain English, no bullet points, no markdown.`,
+    import_guide: `Write a 160-180 word import guide paragraph for US importers of this product:\n${base}\nCover: who imports it, why, key compliance points, one practical tip. Plain English, NO bullet points, NO headers, flowing paragraph only.`,
 
-    duty_breakdown: `You are a US customs broker. Write a 160-180 word Duty Cost Breakdown for this product:\n${base}\n\nOn $10,000 shipment: duty $${(10000*(code.us_duty_rate||0)/100).toFixed(2)}, MPF $${Math.min(10000*0.003464,614.35).toFixed(2)}, HMF $12.50\nOn $50,000: duty $${(50000*(code.us_duty_rate||0)/100).toFixed(2)}, MPF $${Math.min(50000*0.003464,614.35).toFixed(2)}, HMF $62.50\n\nExplain the real costs, MPF/HMF briefly, one savings tip. Plain English, no bullet points.`,
+    duty_breakdown: `Write a 160-180 word duty cost breakdown paragraph for this product:\n${base}\n$10k shipment: duty $${ship10.duty} + MPF $${ship10.mpf} + HMF $12.50 = Total $${ship10.total}\n$50k shipment: duty $${ship50.duty} + MPF $${ship50.mpf} + HMF $62.50 = Total $${ship50.total}\nExplain real costs using above numbers, what MPF/HMF are, one savings tip. Plain English, NO bullet points, flowing paragraph only.`,
 
-    trade_guide: `You are a US trade agreement expert. Write a 160-180 word Trade Agreement Guide for this product:\n${base}\n\nCover: which agreements apply, which country to source from for best rate, real dollar savings example, how to qualify. Plain English, no bullet points.`,
+    trade_guide: `Write a 160-180 word trade agreement guide paragraph for this product:\n${base}\nCover: which agreements apply, best country to source from, real dollar savings, how to qualify. Plain English, NO bullet points, flowing paragraph only.`,
 
-    importer_faq: `You are a US customs expert. Write exactly 4 Q&A pairs for importers of this product:\n${base}\n\nFormat:\nQ1: [question about duty rate]\nA1: [35-50 word answer]\n\nQ2: [question about trade agreements]\nA2: [35-50 word answer]\n\nQ3: [question about documents needed]\nA3: [35-50 word answer]\n\nQ4: [question specific to this product]\nA4: [35-50 word answer]`
+    importer_faq: `Write 4 Q&A pairs for US importers of this product:\n${base}\n\nFormat strictly as:\nQ1: [question]\nA1: [40-50 word answer]\n\nQ2: [question]\nA2: [40-50 word answer]\n\nQ3: [question]\nA3: [40-50 word answer]\n\nQ4: [question]\nA4: [40-50 word answer]`
   }
-
-  return prompts[section] || prompts.import_guide
+  return prompts[section]
 }
 
-async function generate(section, code) {
+async function generate(c) {
   try {
-    const response = await groq.chat.completions.create({
+    const res = await groq.chat.completions.create({
       model: MODEL,
       max_tokens: 400,
-      messages: [{ role: 'user', content: buildPrompt(section, code) }]
+      messages: [{ role:'user', content: buildPrompt(section, c) }]
     })
-    return response.choices[0]?.message?.content?.trim() || ''
-  } catch (err) {
+    return res.choices[0]?.message?.content?.trim() || ''
+  } catch(err) {
     if (err.status === 429) {
-      console.log('Rate limited — waiting 20s...')
-      await new Promise(r => setTimeout(r, 20000))
+      console.log('  Rate limited — waiting 25s...')
+      await new Promise(r=>setTimeout(r,25000))
       return ''
     }
-    console.error(`Error for ${code.hts_code}:`, err.message)
+    console.error(`  Error: ${err.message}`)
     return ''
   }
 }
 
 async function main() {
-  console.log(`\nGenerating ${sectionArg} using ${keyArg}\n`)
+  console.log(`\n🔑 ${keyName} → section: ${section}`)
+  console.log('─'.repeat(50))
 
-  const { data: codes, error } = await supabase
+  const { data: rows, error } = await supabase
     .from('hs_codes')
     .select('id, hts_code, description, us_duty_rate, trade_agreements, rate_history')
-    .is(sectionArg, null)
-    .limit(BATCH_SIZE)
+    .is(section, null)
+    .limit(BATCH)
 
   if (error) { console.error('Supabase error:', error.message); return }
-  if (!codes?.length) { console.log(`All ${sectionArg} done!`); return }
+  if (!rows?.length) { console.log(`✅ All ${section} done!`); return }
 
-  console.log(`Found ${codes.length} rows to process`)
+  console.log(`Found ${rows.length} rows to process\n`)
 
-  let done = 0
-  for (let i = 0; i < codes.length; i++) {
-    const code = codes[i]
-    process.stdout.write(`[${i+1}/${codes.length}] ${code.hts_code}... `)
-    const content = await generate(sectionArg, code)
-    if (content && content.length > 50) {
-      await supabase.from('hs_codes').update({ [sectionArg]: content }).eq('id', code.id)
+  let done = 0, skipped = 0
+  const start = Date.now()
+
+  for (let i = 0; i < rows.length; i++) {
+    const c = rows[i]
+    process.stdout.write(`[${i+1}/${rows.length}] ${c.hts_code}... `)
+    const content = await generate(c)
+    if (content && content.length > 80) {
+      await supabase.from('hs_codes').update({ [section]: content }).eq('id', c.id)
       done++
       console.log('✓')
     } else {
-      console.log('skip')
+      skipped++
+      console.log('✗ skip')
     }
-    await new Promise(r => setTimeout(r, DELAY_MS))
+    await new Promise(r=>setTimeout(r, DELAY))
   }
-  console.log(`\nDone! ${done}/${codes.length} generated`)
+
+  const mins = ((Date.now()-start)/60000).toFixed(1)
+  console.log(`\n📊 ${keyName} Summary:`)
+  console.log(`   ✓ Generated: ${done}`)
+  console.log(`   ✗ Skipped:   ${skipped}`)
+  console.log(`   ⏱ Time:      ${mins} min`)
+  console.log(`   📈 Rate:      ${(done/parseFloat(mins)).toFixed(0)}/min`)
 }
 
 main().catch(console.error)
