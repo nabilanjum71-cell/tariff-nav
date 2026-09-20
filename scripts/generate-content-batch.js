@@ -75,11 +75,21 @@ async function main() {
   console.log(`\n🔑 ${keyName} → section: ${section}`)
   console.log('─'.repeat(50))
 
-  const { data: rows, error } = await supabase
+  // Fetch rows where section is NULL (primary) or empty string
+  const { data: nullRows } = await supabase
     .from('hs_codes')
     .select('id, hts_code, description, us_duty_rate, trade_agreements, rate_history')
     .is(section, null)
     .limit(BATCH)
+
+  const { data: emptyRows } = await supabase
+    .from('hs_codes')
+    .select('id, hts_code, description, us_duty_rate, trade_agreements, rate_history')
+    .eq(section, '')
+    .limit(BATCH - (nullRows?.length || 0))
+
+  const rows = [...(nullRows || []), ...(emptyRows || [])]
+  const error = null
 
   if (error) { console.error('Supabase error:', error.message); return }
   if (!rows?.length) { console.log(`✅ All ${section} done!`); return }
