@@ -103,13 +103,21 @@ async function main() {
     const c = rows[i]
     process.stdout.write(`[${i+1}/${rows.length}] ${c.hts_code}... `)
     const content = await generate(c)
-    if (content && content.length > 80) {
-      await supabase.from('hs_codes').update({ [section]: content }).eq('id', c.id)
-      done++
-      console.log('✓')
+    if (content && content.length > 30) {
+      const { error: updateErr } = await supabase
+        .from('hs_codes')
+        .update({ [section]: content })
+        .eq('id', c.id)
+      if (updateErr) {
+        console.log(`✗ DB error: ${updateErr.message}`)
+        skipped++
+      } else {
+        done++
+        console.log('✓')
+      }
     } else {
       skipped++
-      console.log('✗ skip')
+      console.log(`✗ skip (len=${content?.length || 0})`)
     }
     await new Promise(r=>setTimeout(r, DELAY))
   }
