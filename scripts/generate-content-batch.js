@@ -25,7 +25,7 @@ const supabase = createClient(
 
 const BATCH = 100
 const DELAY = 700
-const MODEL = 'llama-3.3-70b-versatile'
+const MODEL = 'mixtral-8x7b-32768'
 
 function buildPrompt(section, c) {
   const rate = c.us_duty_rate === 0 ? 'Free (0%)' : `${c.us_duty_rate}%`
