@@ -25,7 +25,7 @@ const supabase = createClient(
 
 const BATCH = 100
 const DELAY = 700
-const MODEL = 'openai/gpt-oss-20b'
+const MODEL = 'openai/gpt-oss-120b'
 
 function buildPrompt(section, c) {
   const rate = c.us_duty_rate === 0 ? 'Free (0%)' : `${c.us_duty_rate}%`
