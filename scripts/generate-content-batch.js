@@ -24,8 +24,9 @@ const supabase = createClient(
 )
 
 const BATCH = 20
-const DELAY = 3000
+const DELAY = 7000 // 8K TPM / ~900 tokens per call ≈ 8-9/min ceiling
 const MODEL = 'openai/gpt-oss-120b'
+const MAX_RETRIES = 2
 
 function buildPrompt(section, c) {
   const rate = c.us_duty_rate === 0 ? 'Free (0%)' : `${c.us_duty_rate}%`
@@ -52,18 +53,28 @@ function buildPrompt(section, c) {
   return prompts[section]
 }
 
-async function generate(c) {
+async function generate(c, attempt = 0) {
   try {
     const res = await groq.chat.completions.create({
       model: MODEL,
-      max_tokens: 400,
+      max_tokens: 1000,
+      reasoning_effort: 'low',
       messages: [{ role:'user', content: buildPrompt(section, c) }]
     })
-    return res.choices[0]?.message?.content?.trim() || ''
+    const out = res.choices[0]?.message?.content?.trim() || ''
+    if (!out) {
+      console.log(`  Empty (finish_reason=${res.choices[0]?.finish_reason}, tokens=${res.usage?.completion_tokens})`)
+    }
+    return out
   } catch(err) {
     if (err.status === 429) {
-      console.log('  Rate limited — waiting 25s...')
-      await new Promise(r=>setTimeout(r,25000))
+      const retryAfter = Number(err.headers?.get?.('retry-after')) || 20
+      if (attempt < MAX_RETRIES) {
+        console.log(`  Rate limited — retry ${attempt+1}/${MAX_RETRIES} after ${retryAfter}s...`)
+        await new Promise(r=>setTimeout(r, retryAfter*1000))
+        return generate(c, attempt+1)
+      }
+      console.log(`  Rate limited — out of retries, skipping`)
       return ''
     }
     console.error(`  Error: ${err.message}`)
@@ -75,7 +86,6 @@ async function main() {
   console.log(`\n🔑 ${keyName} → section: ${section}`)
   console.log('─'.repeat(50))
 
-  // Fetch rows where section is NULL (primary) or empty string
   const { data: nullRows } = await supabase
     .from('hs_codes')
     .select('id, hts_code, description, us_duty_rate, trade_agreements, rate_history')
@@ -89,9 +99,7 @@ async function main() {
     .limit(BATCH - (nullRows?.length || 0))
 
   const rows = [...(nullRows || []), ...(emptyRows || [])]
-  const error = null
 
-  if (error) { console.error('Supabase error:', error.message); return }
   if (!rows?.length) { console.log(`✅ All ${section} done!`); return }
 
   console.log(`Found ${rows.length} rows to process\n`)
