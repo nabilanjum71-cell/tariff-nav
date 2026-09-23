@@ -11,9 +11,9 @@ if (!section || !keyName) {
   process.exit(1)
 }
 
-const apiKey = process.env[keyName]
+const apiKey = process.env.GROQ_API_KEY
 if (!apiKey) {
-  console.log(`⚠️  ${keyName} not set — skipping`)
+  console.log(`⚠️  GROQ_API_KEY not set for ${keyName} — skipping`)
   process.exit(0)
 }
 
@@ -23,7 +23,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH = 20
+const BATCH = 400
 const DELAY = 7000 // 8K TPM / ~900 tokens per call ≈ 8-9/min ceiling
 const MODEL = 'openai/gpt-oss-120b'
 const MAX_RETRIES = 2
