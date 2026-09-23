@@ -7,9 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  sync-data:
+  blog:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,8 +16,6 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
-
-      # ── BLOG POST ───────────────────────────────────────────
       - name: Generate blog post
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -27,87 +24,46 @@ jobs:
           UNSPLASH_KEY: ${{ secrets.UNSPLASH_KEY }}
         run: node scripts/generate-blog.js
 
-      - run: sleep 15
-
-      # ══════════════════════════════════════════════════════
-      # IMPORT GUIDE — 3 keys × 100 = 300/run
-      # ══════════════════════════════════════════════════════
-      - name: "[KEY4] import_guide"
+  content-gen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        include:
+          - section: import_guide
+            key: GROQ_KEY_4
+          - section: import_guide
+            key: GROQ_API_KEY_11
+          - section: import_guide
+            key: GROQ_API_KEY_12
+          - section: duty_breakdown
+            key: GROQ_KEY_5
+          - section: duty_breakdown
+            key: GROQ_KEY_14
+          - section: duty_breakdown
+            key: GROQ_KEY_15
+          - section: trade_guide
+            key: GROQ_KEY_1
+          - section: trade_guide
+            key: GROQ_API_KEY_101
+          - section: importer_faq
+            key: GROQ_KEY_2
+          - section: importer_faq
+            key: GROQ_API_KEY_102
+          - section: importer_faq
+            key: GROQ_API_KEY_103
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: "${{ matrix.section }} via ${{ matrix.key }}"
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_4: ${{ secrets.GROQ_KEY_4 }}
-        run: node scripts/generate-content-batch.js --section=import_guide --key=GROQ_KEY_4
-
-      - run: sleep 15
-
-      - name: "[KEY11] import_guide"
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_API_KEY_11: ${{ secrets.GROQ_API_KEY_11 }}
-        run: node scripts/generate-content-batch.js --section=import_guide --key=GROQ_API_KEY_11
-
-      - run: sleep 15
-
-      - name: "[KEY12] import_guide"
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_API_KEY_12: ${{ secrets.GROQ_API_KEY_12 }}
-        run: node scripts/generate-content-batch.js --section=import_guide --key=GROQ_API_KEY_12
-
-      - run: sleep 15
-
-      # ══════════════════════════════════════════════════════
-      # DUTY BREAKDOWN — 3 keys × 100 = 300/run
-      # ══════════════════════════════════════════════════════
-      - name: "[KEY5] duty_breakdown"
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_5: ${{ secrets.GROQ_KEY_5 }}
-        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_5
-
-      - run: sleep 15
-
-      - name: "[KEY14] duty_breakdown"
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_14: ${{ secrets.GROQ_KEY_14 }}
-        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_14
-
-      - run: sleep 15
-
-      - name: "[KEY15] duty_breakdown"
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_15: ${{ secrets.GROQ_KEY_15 }}
-        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_15
-
-      - run: sleep 15
-
-      # ══════════════════════════════════════════════════════
-      # TRADE GUIDE — 1 key × 100 = 100/run
-      # ══════════════════════════════════════════════════════
-      - name: "[KEY1] trade_guide"
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_1: ${{ secrets.GROQ_KEY_1 }}
-        run: node scripts/generate-content-batch.js --section=trade_guide --key=GROQ_KEY_1
-
-      - run: sleep 15
-
-      # ══════════════════════════════════════════════════════
-      # IMPORTER FAQ — 1 key × 100 = 100/run
-      # ══════════════════════════════════════════════════════
-      - name: "[KEY2] importer_faq"
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_2: ${{ secrets.GROQ_KEY_2 }}
-        run: node scripts/generate-content-batch.js --section=importer_faq --key=GROQ_KEY_2
-
+          GROQ_API_KEY: ${{ secrets[matrix.key] }}
+        run: node scripts/generate-content-batch.js --section=${{ matrix.section }} --key=${{ matrix.key }}
