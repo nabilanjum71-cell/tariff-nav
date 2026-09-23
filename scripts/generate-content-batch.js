@@ -23,8 +23,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH = 100
-const DELAY = 700
+const BATCH = 20
+const DELAY = 3000
 const MODEL = 'openai/gpt-oss-120b'
 
 function buildPrompt(section, c) {
