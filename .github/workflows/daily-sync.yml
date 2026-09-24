@@ -7,26 +7,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  blog:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
-      - run: npm ci
-      - name: Generate blog post
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GROQ_KEY_3: ${{ secrets.GROQ_KEY_3 }}
-          UNSPLASH_KEY: ${{ secrets.UNSPLASH_KEY }}
-        run: node scripts/generate-blog.js
-
   content-gen:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       max-parallel: 10
