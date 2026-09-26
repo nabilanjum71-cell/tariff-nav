@@ -1,0 +1,25 @@
+name: Sync 14 - trade_guide (GROQ_API_KEY_GOLDEN)
+
+on:
+  schedule:
+    - cron: '45 16 * * *'
+    - cron: '45 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: "trade_guide via GROQ_API_KEY_GOLDEN"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_GOLDEN }}
+        run: node scripts/generate-content-batch.js --section=trade_guide --key=GROQ_API_KEY_GOLDEN
