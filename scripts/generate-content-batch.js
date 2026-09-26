@@ -28,6 +28,15 @@ const DELAY = 7000 // 8K TPM / ~900 tokens per call ≈ 8-9/min ceiling
 const MODEL = 'openai/gpt-oss-120b'
 const MAX_RETRIES = 2
 
+async function sleepWithHeartbeat(ms) {
+  const start = Date.now()
+  while (Date.now() - start < ms) {
+    const chunk = Math.min(30000, ms - (Date.now() - start))
+    await new Promise(r => setTimeout(r, chunk))
+    if (Date.now() - start < ms) console.log(`    ...still waiting (${Math.round((Date.now()-start)/1000)}s elapsed)`)
+  }
+}
+
 function buildPrompt(section, c) {
   const rate = c.us_duty_rate === 0 ? 'Free (0%)' : `${c.us_duty_rate}%`
   const fta = c.trade_agreements
@@ -71,7 +80,7 @@ async function generate(c, attempt = 0) {
       const retryAfter = Number(err.headers?.get?.('retry-after')) || 20
       if (attempt < MAX_RETRIES) {
         console.log(`  Rate limited — retry ${attempt+1}/${MAX_RETRIES} after ${retryAfter}s...`)
-        await new Promise(r=>setTimeout(r, retryAfter*1000))
+        await sleepWithHeartbeat(retryAfter*1000)
         return generate(c, attempt+1)
       }
       console.log(`  Rate limited — out of retries, skipping`)
