@@ -1,0 +1,25 @@
+name: Sync 06 - duty_breakdown (GROQ_KEY_14)
+
+on:
+  schedule:
+    - cron: '45 10 * * *'
+    - cron: '45 22 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: "duty_breakdown via GROQ_KEY_14"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_KEY_14 }}
+        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_14
