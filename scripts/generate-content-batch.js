@@ -5,6 +5,7 @@ require('dotenv').config({ path: '.env.local' })
 const args = process.argv.slice(2)
 const section = args.find(a => a.startsWith('--section='))?.split('=')[1]
 const keyName = args.find(a => a.startsWith('--key='))?.split('=')[1]
+const batchArg = args.find(a => a.startsWith('--batch='))?.split('=')[1]
 
 if (!section || !keyName) {
   console.error('Usage: node generate-content-batch.js --section=import_guide --key=GROQ_KEY_4')
@@ -23,7 +24,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH = 450
+const BATCH = batchArg ? parseInt(batchArg) : 450
 const DELAY = 7000 // 8K TPM / ~900 tokens per call ≈ 8-9/min ceiling
 const MODEL = 'openai/gpt-oss-120b'
 const MAX_RETRIES = 2
