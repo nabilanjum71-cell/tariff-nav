@@ -24,7 +24,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const BATCH = batchArg ? parseInt(batchArg) : 450
+const BATCH = batchArg ? parseInt(batchArg) : 500
 const DELAY = 7000 // 8K TPM / ~900 tokens per call ≈ 8-9/min ceiling
 const MODEL = 'openai/gpt-oss-120b'
 const MAX_RETRIES = 2
