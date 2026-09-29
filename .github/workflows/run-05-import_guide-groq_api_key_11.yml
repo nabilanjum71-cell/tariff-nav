@@ -2,7 +2,7 @@ name: Sync 05 - import_guide (GROQ_API_KEY_11)
 
 on:
   schedule:
-    - cron: '2 0 * * *'
+    - cron: '35 3 * * *'
   workflow_dispatch:
 
 jobs:
