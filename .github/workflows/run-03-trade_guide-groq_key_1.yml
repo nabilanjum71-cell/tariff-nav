@@ -2,7 +2,7 @@ name: Sync 03 - trade_guide (GROQ_KEY_1)
 
 on:
   schedule:
-    - cron: '59 22 * * *'
+    - cron: '57 4 * * *'
   workflow_dispatch:
 
 jobs:
