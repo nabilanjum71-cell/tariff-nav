@@ -2,7 +2,7 @@ name: Sync 12 - importer_faq (GROQ_API_KEY_102)
 
 on:
   schedule:
-    - cron: '20 5 * * *'
+    - cron: '34 13 * * *'
   workflow_dispatch:
 
 jobs:
