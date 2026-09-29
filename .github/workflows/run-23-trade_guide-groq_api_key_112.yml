@@ -2,7 +2,7 @@ name: Sync 23 - trade_guide (GROQ_API_KEY_112)
 
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '3 23 * * *'
   workflow_dispatch:
 
 jobs:
