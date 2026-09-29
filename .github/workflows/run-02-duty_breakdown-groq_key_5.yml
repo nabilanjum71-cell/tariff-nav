@@ -2,7 +2,7 @@ name: Sync 02 - duty_breakdown (GROQ_KEY_5)
 
 on:
   schedule:
-    - cron: '11 22 * * *'
+    - cron: '58 3 * * *'
   workflow_dispatch:
 
 jobs:
