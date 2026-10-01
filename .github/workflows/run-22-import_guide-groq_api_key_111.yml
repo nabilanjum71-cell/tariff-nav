@@ -1,4 +1,4 @@
-name: Sync 22 - import_guide (GROQ_API_KEY_111)
+name: Sync 22 - importer_faq (GROQ_API_KEY_111)
 
 on:
   schedule:
@@ -16,9 +16,9 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
-      - name: "import_guide via GROQ_API_KEY_111"
+      - name: "importer_faq via GROQ_API_KEY_111"
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_111 }}
-        run: node scripts/generate-content-batch.js --section=import_guide --key=GROQ_API_KEY_111 --batch=500
+        run: node scripts/generate-content-batch.js --section=importer_faq --key=GROQ_API_KEY_111 --batch=500
