@@ -1,4 +1,4 @@
-name: Sync 03 - trade_guide (GROQ_KEY_1)
+name: Sync 03 - duty_breakdown (GROQ_KEY_1)
 
 on:
   schedule:
@@ -16,9 +16,9 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
-      - name: "trade_guide via GROQ_KEY_1"
+      - name: "duty_breakdown via GROQ_KEY_1"
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_KEY_1 }}
-        run: node scripts/generate-content-batch.js --section=trade_guide --key=GROQ_KEY_1 --batch=500
+        run: node scripts/generate-content-batch.js --section=duty_breakdown --key=GROQ_KEY_1 --batch=500
