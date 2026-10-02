@@ -1,0 +1,27 @@
+name: Expand Pages (country/product/guide)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        key: [GROQ_KEY_4, GROQ_KEY_5, GROQ_KEY_1, GROQ_KEY_2, GROQ_API_KEY_11, GROQ_API_KEY_12, GROQ_KEY_14, GROQ_KEY_15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: "expanded_pages via ${{ matrix.key }}"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY: ${{ secrets[matrix.key] }}
+        run: node scripts/generate-expanded-content.js --key=${{ matrix.key }} --batch=20
