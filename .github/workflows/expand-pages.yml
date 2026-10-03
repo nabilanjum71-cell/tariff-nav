@@ -11,7 +11,23 @@ jobs:
       fail-fast: false
       max-parallel: 8
       matrix:
-        key: [GROQ_KEY_4, GROQ_KEY_5, GROQ_KEY_1, GROQ_KEY_2, GROQ_API_KEY_11, GROQ_API_KEY_12, GROQ_KEY_14, GROQ_KEY_15]
+        include:
+          - key: GROQ_KEY_4
+            offset: 0
+          - key: GROQ_KEY_5
+            offset: 16
+          - key: GROQ_KEY_1
+            offset: 32
+          - key: GROQ_KEY_2
+            offset: 48
+          - key: GROQ_API_KEY_11
+            offset: 64
+          - key: GROQ_API_KEY_12
+            offset: 80
+          - key: GROQ_KEY_14
+            offset: 96
+          - key: GROQ_KEY_15
+            offset: 112
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,9 +35,9 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
-      - name: "expanded_pages via ${{ matrix.key }}"
+      - name: "expanded_pages via ${{ matrix.key }} (offset ${{ matrix.offset }})"
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_API_KEY: ${{ secrets[matrix.key] }}
-        run: node scripts/generate-expanded-content.js --key=${{ matrix.key }} --batch=20
+        run: node scripts/generate-expanded-content.js --key=${{ matrix.key }} --batch=16 --offset=${{ matrix.offset }}
