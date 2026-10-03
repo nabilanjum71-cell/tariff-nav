@@ -6,6 +6,8 @@ const args = process.argv.slice(2)
 const keyName = args.find(a => a.startsWith('--key='))?.split('=')[1] || 'KEY'
 const batchArg = args.find(a => a.startsWith('--batch='))?.split('=')[1]
 const BATCH = batchArg ? parseInt(batchArg) : 20
+const offsetArg = args.find(a => a.startsWith('--offset='))?.split('=')[1]
+const OFFSET = offsetArg ? parseInt(offsetArg) : 0
 
 const apiKey = process.env.GROQ_API_KEY
 if (!apiKey) {
@@ -85,7 +87,8 @@ async function main() {
     .from('expanded_pages')
     .select('id, slug, type, name, title')
     .is('content', null)
-    .limit(BATCH)
+    .order('slug', { ascending: true })
+    .range(OFFSET, OFFSET + BATCH - 1)
 
   if (qErr) { console.error('Query error:', qErr.message); return }
   if (!rows?.length) { console.log('✅ All expanded_pages done!'); return }
