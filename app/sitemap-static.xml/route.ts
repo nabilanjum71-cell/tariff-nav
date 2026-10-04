@@ -1,3 +1,5 @@
+import { supabase } from '@/lib/supabase'
+
 export async function GET() {
   const baseUrl = 'https://tariff-nav.vercel.app'
 
@@ -17,9 +19,28 @@ export async function GET() {
     })),
   ]
 
+  const { data: expandedPages } = await supabase
+    .from('expanded_pages')
+    .select('slug, type')
+    .not('content', 'is', null)
+
+  const pathByType: Record<string, string> = {
+    country: 'import-from',
+    product: 'import',
+    guide: 'guides',
+  }
+
+  const expandedUrls = (expandedPages || []).map((p) => ({
+    url: `${baseUrl}/${pathByType[p.type]}/${p.slug}`,
+    priority: p.type === 'guide' ? '0.75' : '0.85',
+    freq: 'monthly',
+  }))
+
+  const allUrls = [...staticUrls, ...expandedUrls]
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${staticUrls.map(({ url, priority, freq }) => `  <url>
+${allUrls.map(({ url, priority, freq }) => `  <url>
     <loc>${url}</loc>
     <changefreq>${freq}</changefreq>
     <priority>${priority}</priority>
