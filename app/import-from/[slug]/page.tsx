@@ -99,11 +99,31 @@ export default async function CountryPage({ params }: Props) {
       </header>
 
       <section style={{ marginBottom: '2.5rem' }}>
-        <div className="card" style={{ borderLeft: '3px solid var(--accent)' }}>
-          <p className="duty-speakable" style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '0.95rem', margin: 0, whiteSpace: 'pre-line' }}>
-            {page.content}
-          </p>
-        </div>
+        {(() => {
+          const paragraphs = page.content.split(/\n\n+/).filter(p => p.trim())
+          const sections = [
+            { label: 'What This Country Commonly Exports', border: 'var(--accent)' },
+            { label: 'Typical Duty Rates', border: 'var(--warning)' },
+            { label: 'Trade Agreement Status', border: '#22c55e' },
+            { label: 'Practical Tips for Importers', border: '#a78bfa' },
+          ]
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              {paragraphs.map((para, i) => (
+                <div key={i} className="card" style={{ borderLeft: `3px solid ${sections[i]?.border || 'var(--border)'}` }}>
+                  {sections[i] && (
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: sections[i].border, marginBottom: '0.6rem' }}>
+                      {sections[i].label}
+                    </div>
+                  )}
+                  <p className="duty-speakable" style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '0.95rem', margin: 0 }}>
+                    {para.trim()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
       </section>
 
       <section style={{ marginBottom: '2.5rem' }}>
