@@ -41,3 +41,13 @@ export type Chapter = {
   top_importers: { country: string; share: number }[]
   updated_at: string
 }
+
+export type ExpandedPage = {
+  id: string
+  slug: string
+  type: 'country' | 'product' | 'guide'
+  name: string
+  title: string
+  content: string | null
+  created_at: string
+}
