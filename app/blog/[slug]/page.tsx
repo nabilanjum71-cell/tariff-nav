@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single()
   if (!data) return { title: 'Article Not Found' }
   return {
-    title: `${data.title} | TariffNav`,
+    title: data.title,
     description: data.excerpt,
   }
 }

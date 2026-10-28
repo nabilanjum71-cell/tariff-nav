@@ -30,6 +30,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!data) return { title: 'HS Code Not Found' }
 
+  // CTR TEST (2026-10-29, 30-day measure): lead with tool value, not the rate.
+  // Standard pages keep the old title/meta untouched.
+  const CTR_TEST: Record<string, { title: string; description: string }> = {
+    '9903.03.06': {
+      title: 'HS Code 9903.03.06 — Duty Rates for 164 Countries, Section 301 & Landed Cost Calculator',
+      description: 'Compare the US import duty rate for HS code 9903.03.06 across 164 countries, check Section 301 additional duties, and calculate your exact landed cost. US rate: Free (0%).',
+    },
+    '9504.40.00.00': {
+      title: 'HS Code 9504.40.00.00 — Playing Cards: Duty Rates for 164 Countries + Landed Cost Calculator',
+      description: 'Compare the US import duty rate for playing cards (HS code 9504.40.00.00) across 164 countries, check trade agreement benefits, and calculate your exact landed cost. US rate: Free (0%).',
+    },
+  }
+  const ctrTest = CTR_TEST[data.hts_code]
+  if (ctrTest) {
+    return {
+      title: ctrTest.title,
+      description: ctrTest.description,
+      alternates: {
+        canonical: `https://tariff-nav.vercel.app/hs-code/${params.code}`,
+      },
+      openGraph: {
+        title: ctrTest.title,
+        description: ctrTest.description,
+      },
+    }
+  }
+
   return {
     title: `HS Code ${data.hts_code} — ${data.description.slice(0, 50)} | US Duty Rate ${data.us_duty_rate === 0 ? 'Free' : data.us_duty_rate + '%'}`,
     description: `HS code ${data.hts_code}: ${data.description.slice(0, 100)}. US import duty rate: ${data.us_duty_rate === 0 ? 'Free (0%)' : data.us_duty_rate + '%'}. View duty rates for 164 countries, trade agreements (USMCA, GSP), rate history and landed cost calculator.`,

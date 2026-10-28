@@ -40,8 +40,11 @@ export default function CalculatorPage() {
       <h1 className="font-display" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
         Import Duty Calculator
       </h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
         Find any HS code and calculate your exact duty cost.
+      </p>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+        Enter a product name or HS code, add your shipment value in USD, and choose the country you are importing from. The calculator applies the correct duty rate — including Section 301 tariffs for China and preferential rates under USMCA and GSP — and shows your duty owed and total landed cost instantly. Free, no sign-up.
       </p>
 
       {/* Step 1: Search HS Code */}
@@ -128,6 +131,52 @@ export default function CalculatorPage() {
           ))}
         </div>
       )}
+
+      {/* FAQ — indexable text for duty calculator queries */}
+      <section style={{ marginTop: '3rem' }}>
+        <h2 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>Frequently Asked Questions</h2>
+
+        <div style={ marginBottom: '1.25rem' }>
+          <h3 style={ fontSize: '1rem', marginBottom: '0.25rem' }>How is US import duty calculated?</h3>
+          <p style={ color: 'var(--text-secondary)', margin: 0 }>Multiply your shipment's customs value by the duty rate for its HS code. For example, a $10,000 shipment at a 5% duty rate owes $500 in duty. Merchandise Processing Fees (MPF) and Harbor Maintenance Fees (HMF) may also apply.</p>
+        </div>
+
+        <div style={ marginBottom: '1.25rem' }>
+          <h3 style={ fontSize: '1rem', marginBottom: '0.25rem' }>Do I pay extra duty on goods imported from China?</h3>
+          <p style={ color: 'var(--text-secondary)', margin: 0 }>Many Chinese goods carry additional Section 301 tariffs on top of the standard duty rate. Select China in the calculator above to see the applicable rate for your HS code, including any Section 301 duty.</p>
+        </div>
+
+        <div style={ marginBottom: '1.25rem' }>
+          <h3 style={ fontSize: '1rem', marginBottom: '0.25rem' }>Can a trade agreement reduce my duty to zero?</h3>
+          <p style={ color: 'var(--text-secondary)', margin: 0 }>Yes. Goods that qualify under agreements such as USMCA (Canada and Mexico) or GSP can enter at 0% duty with a valid Certificate of Origin. The calculator shows preferential rates where they apply.</p>
+        </div>
+      </section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: "How is US import duty calculated?",
+                acceptedAnswer: { '@type': 'Answer', text: "Multiply your shipment's customs value by the duty rate for its HS code. For example, a $10,000 shipment at a 5% duty rate owes $500 in duty. Merchandise Processing Fees (MPF) and Harbor Maintenance Fees (HMF) may also apply." },
+              },
+              {
+                '@type': 'Question',
+                name: "Do I pay extra duty on goods imported from China?",
+                acceptedAnswer: { '@type': 'Answer', text: "Many Chinese goods carry additional Section 301 tariffs on top of the standard duty rate. Select China in the calculator above to see the applicable rate for your HS code, including any Section 301 duty." },
+              },
+              {
+                '@type': 'Question',
+                name: "Can a trade agreement reduce my duty to zero?",
+                acceptedAnswer: { '@type': 'Answer', text: "Yes. Goods that qualify under agreements such as USMCA (Canada and Mexico) or GSP can enter at 0% duty with a valid Certificate of Origin. The calculator shows preferential rates where they apply." },
+              },
+            ],
+          }),
+        }}
+      />
     </div>
   )
 }

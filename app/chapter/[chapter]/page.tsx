@@ -112,8 +112,15 @@ const CHAPTER_META: Record<string, { title: string; icon: string; description: s
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const meta = CHAPTER_META[params.chapter.padStart(2, '0')]
   const title = meta?.title || `HS Chapter ${params.chapter}`
+  // CTR TEST (2026-10-29, 30-day measure): Chapter 69 leads with tool value, not just the list.
+  if (params.chapter.padStart(2, '0') === '69') {
+    return {
+      title: 'HS Chapter 69: Ceramic Products — Duty Rates for 164 Countries + Import Calculator',
+      description: `Compare Chapter 69 ceramic products duty rates across 164 countries, check USMCA and GSP benefits, and calculate your landed cost. Complete list of HS codes for ${title.toLowerCase()} products including bricks, tiles, tableware, and sanitary fixtures.`,
+    }
+  }
   return {
-    title: `HS Chapter ${params.chapter}: ${title} — Import Duty Rates & HS Codes | TariffNav`,
+    title: `HS Chapter ${params.chapter}: ${title} — Import Duty Rates & HS Codes`,
     description: `Complete list of HS codes in Chapter ${params.chapter} (${title}). ${meta?.description?.slice(0, 100) || ''} Find US import duty rates, USMCA benefits, and trade agreements for all ${title.toLowerCase()} products.`,
   }
 }
