@@ -136,19 +136,19 @@ export default function CalculatorPage() {
       <section style={{ marginTop: '3rem' }}>
         <h2 style={{ fontSize: '1.4rem', marginBottom: '1rem' }}>Frequently Asked Questions</h2>
 
-        <div style={ marginBottom: '1.25rem' }>
-          <h3 style={ fontSize: '1rem', marginBottom: '0.25rem' }>How is US import duty calculated?</h3>
-          <p style={ color: 'var(--text-secondary)', margin: 0 }>Multiply your shipment's customs value by the duty rate for its HS code. For example, a $10,000 shipment at a 5% duty rate owes $500 in duty. Merchandise Processing Fees (MPF) and Harbor Maintenance Fees (HMF) may also apply.</p>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>How is US import duty calculated?</h3>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Multiply your shipment's customs value by the duty rate for its HS code. For example, a $10,000 shipment at a 5% duty rate owes $500 in duty. Merchandise Processing Fees (MPF) and Harbor Maintenance Fees (HMF) may also apply.</p>
         </div>
 
-        <div style={ marginBottom: '1.25rem' }>
-          <h3 style={ fontSize: '1rem', marginBottom: '0.25rem' }>Do I pay extra duty on goods imported from China?</h3>
-          <p style={ color: 'var(--text-secondary)', margin: 0 }>Many Chinese goods carry additional Section 301 tariffs on top of the standard duty rate. Select China in the calculator above to see the applicable rate for your HS code, including any Section 301 duty.</p>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>Do I pay extra duty on goods imported from China?</h3>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Many Chinese goods carry additional Section 301 tariffs on top of the standard duty rate. Select China in the calculator above to see the applicable rate for your HS code, including any Section 301 duty.</p>
         </div>
 
-        <div style={ marginBottom: '1.25rem' }>
-          <h3 style={ fontSize: '1rem', marginBottom: '0.25rem' }>Can a trade agreement reduce my duty to zero?</h3>
-          <p style={ color: 'var(--text-secondary)', margin: 0 }>Yes. Goods that qualify under agreements such as USMCA (Canada and Mexico) or GSP can enter at 0% duty with a valid Certificate of Origin. The calculator shows preferential rates where they apply.</p>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h3 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>Can a trade agreement reduce my duty to zero?</h3>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Yes. Goods that qualify under agreements such as USMCA (Canada and Mexico) or GSP can enter at 0% duty with a valid Certificate of Origin. The calculator shows preferential rates where they apply.</p>
         </div>
       </section>
       <script
