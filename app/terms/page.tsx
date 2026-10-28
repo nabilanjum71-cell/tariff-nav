@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata = {
 
-  title: "Terms of Service | TariffNav",
+  title: "Terms of Service",
   description: "TariffNav terms of service governing use of this website.",
 };
 

@@ -5,7 +5,7 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Import & Tariff Blog — TariffNav',
+  title: 'Import & Tariff Blog',
   description: 'Expert guides on HS codes, import duties, trade agreements, and US customs regulations. Updated daily.',
 }
 

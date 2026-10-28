@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return { title: 'Page Not Found' }
 
   return {
-    title: `${data.title} | TariffNav`,
+    title: data.title,
     description: (data.content || `US import duty guide for goods from ${data.name}`).slice(0, 155),
     alternates: {
       canonical: `https://tariff-nav.vercel.app/import-from/${params.slug}`,
